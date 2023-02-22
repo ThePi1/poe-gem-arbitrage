@@ -7,11 +7,15 @@ A command-line Path of Exile Regrading Lens / vaal trade calculator.
 TL;DR: It looks up the prices of gems and regrading lenses, and uses alt-quality weights to find profitable gems to use them on. Also, does the same (roughly) for vaal orbs.
 
 ## Usage
-Requires Python 3.
+Download the latest release and unzip to a separate folder. Run the program command-line from the folder as follows:
 
-If you don't have Python -- you can download it here: `https://www.python.org/downloads/`
+    .\gem_arbitrage.exe
 
-The following will need to be run in your OS's shell -- PowerShell, Bash, CMD, etc.
+And you're done. Release is only for Windows at the moment. Linux users can just run it from source.
+
+If you want to run it from source, which is basically just as easy, you'll need Python installed. If you don't have Python -- you can download it here: `https://www.python.org/downloads/`
+
+The following will need to be run in your OS's shell, in the source folder -- PowerShell, Bash, CMD, etc.
 
     Optional - set up a venv.
 
@@ -146,3 +150,14 @@ The gem weights come from poedb.tw (POE DB), and can be found here: `https://poe
 If needed -- due to an update or otherwise, for `gems.csv` to be recreated / updated, the website will need to be manually scraped / copy / pasted and cleaned up to be formatted right.
 
 The way I do it is just copy/paste the whole table into Excel / Google Sheets and get to deleting rows, cleaning up, etc., to get it to fit. It's not a super clean process, but it only needs to be done once, or at least, when new skill gems are added. It shouldn't break, just new gems won't be calculated for.
+
+## Packaging binary
+The way I package the binary for Windows for release is as follows. Packaged with Python 3.9.
+
+    pip install pyinstaller
+    pyinstaller .\gem-arbitrage.py --onefile
+    > Go into dist/ folder and grab gem_arbitrage.exe
+    > Copy gem_arbitrage.exe, LICENSE, and data/ folder to new folder.
+    > Zip up and release
+
+I don't have it packaged for Linux/Mac on hand, but if you want to, you can.
