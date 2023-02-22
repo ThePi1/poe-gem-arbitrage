@@ -7,7 +7,7 @@ import json
 v2_weights_m1 = {}
 gem_types = ['Superior', 'Anomalous', 'Divergent', 'Phantasmal']
 gem_file = "data/gems.csv"
-global_iterations = 10
+global_iterations = 1000000
 
 def import_gem_weights(_gem_file):
   with open(_gem_file) as gemsfile:
