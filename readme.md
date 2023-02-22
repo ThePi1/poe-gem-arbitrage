@@ -26,7 +26,7 @@ The following will need to be run in your OS's shell -- PowerShell, Bash, CMD, e
 
 
 The tool will run according to the `settings.ini` file and spit out profitable trades for you to make.
-You're going to see something like the text below. Here's how you can read it.
+You're going to see something like the text below.
 
 No, there's no GUI, it's just text.
 
