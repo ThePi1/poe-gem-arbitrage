@@ -39,7 +39,16 @@ Let's step through an example line.
 
 The first line shows the different gems that make up the trade. In this case, going from Superior Inspiration to Divergent. It lists each gem's (pre- and post-) level and quality, the method used (more on this below) and the estimated amount of lenses needed to succeed.
 
-The second line gives some more granular detail on the costs involved. 'Value' refers to the value of the final gem. 'Lens Cost' refers to the average cost of lenses needed to hit the final gem. 'Gem Cost' refers to the cost of the initial gem. 'Gems Listed' refers to the (estimated) number of gems listed of that exact level and quality from poe.ninja. It functions as a confidence estimator.
+The second line gives some more granular detail on the costs involved.
+
+'Value' refers to the value of the final gem.
+
+'Lens Cost' refers to the average cost of lenses needed to hit the final gem.
+
+'Gem Cost' refers to the cost of the initial gem.
+
+'Gems Listed' refers to the (estimated) number of gems listed of that exact level and quality from poe.ninja. 
+It functions as a confidence estimator.
 
 ## Repeat vs. Single lens Use
 What's all this about 'single' vs 'repeat' gem use?
@@ -53,15 +62,15 @@ Multiple refers to buying a gem, and using lenses on it until you hit the result
 #### Single vs. Multiple, continued...
 TL;DR: I don't like the single use strategy, I think it's a waste of time in bulk, I go multiple where possible.
 
-One of the most important decisions / considerations when using the tool is the above single vs. multiple lens use methods.
+One of the most important decisions / considerations when using the tool is the above 'single' vs. 'multiple' lens use methods.
 
-Some trades might be more profitable when using the multiple vs. the single use method. It really all comes down to:
+Some trades might be more profitable when using the multiple vs. the single use method. It all comes down to:
 - Quality weights
 - QOL for trading and actually making money (seriously)
 
-Usually, gems with alt qualities have basically one valuable quality. I think, in general, it's a waste of time (time is money!) to buy up gems just to use a single lens on them and throw away. Most base gems aren't available in massive bulk quantities easily or cheaply. (Some exceptions like CWDT or Inspiration as of writing this.) This is especially true for gems that have average tries >4 or more.
+Usually, gems with alt qualities have basically one valuable quality. I think, in general, it's a waste of time (time is money!) to buy up gems just to use a single lens on them and throw away. Most base gems aren't available in massive bulk quantities easily or cheaply. (Some exceptions like CWDT or Inspiration as of writing this.) This is especially true for gems that have average tries > 4 or more.
 
-In most cases there is really no reclamation of value by selling the intermediate product anyways. Sort of like how, sometimes, (back in the old days), you'd sell 5 links on the way to the 6 link. There just is no market for most of the intermediate (not-super-valuable) qualities, and you'll be stuck holding garbage.
+In most cases, there is really no reclamation of value by selling the intermediate product anyways. Sort of like how, sometimes, (back in the old days), you'd sell 5 links on the way to the 6 link. There just is no market for most of the intermediate (not-super-valuable) qualities, and you'll be stuck holding garbage.
 
 #### 'M1' vs. 'M2' sorting methods
 TL;DR: You probably want it on 'M2', but if you need to switch over to generating more skill gems to sell, switch it to 'M1'.
@@ -83,26 +92,26 @@ Settings are controlled by and can be found in the `settings.ini` file. Things l
 In addition -- there are some values in the `Controller` class that probably won't need to be changed, but in some cases (like changing match order for levels / qualities).
 
 ## Vaal Outputs
-The secondary mode of this tool can calculate profits on Vaaling 20/20 gems. There are some drawbacks to this, which will be detailed below, but let's take a look at an example:
+The secondary mode of this tool can calculate profits on vaaling 20/20 gems. There are some drawbacks to this, which will be detailed below, but let's take a look at an example:
 
     Divergent Tempest Shield (M1: 464.8549999999998/t)
             6.64: 6.40, 6.40, 6.40, 6.40, 7.97, 3.59, 28.16, 6.40
 
-The top line lists the gem (20/20) and the estimated profit per try. The second line lists the prices of the pre-gem first, then each subsequent gem follows this list, in order, for each possible resultant quality:
+The top line lists the gem (20/20) and the estimated profit per try. The second line lists the prices of the pre-gem first, then each subsequent gem follows this list, in order, for each possible resultant quality (zero-indexed in the program):
 
-    0,1 - corrupt
-    2,3 - vaal version (or corrupt if no vaal version)
-    4 - add up to 10% quality, to a max of 23%
-    5 - remove up to 10% quality
-    6 - add 1 level
-    7 - remove 1 level
+    1,2 - corrupt
+    3,4 - vaal version (or corrupt if no vaal version)
+    5 - add up to 10% quality, to a max of 23%
+    6 - remove up to 10% quality
+    7 - add 1 level
+    8 - remove 1 level
 
-Normally all (or almost all) of the profit comes from hitting 21/20 gems.
+Normally, all (or almost all) of the profit comes from hitting 21/20 gems.
 
 ## Quirks and Issues
 #### Vaal operations
 Vaal operations really depend on good data, that poe.ninja has a tough time providing. We have to take some liberties with some of the numbers (for example, most gems don't have a price for a 19/20 corrupted gem, but it's usually close enough to a corrupted 20/20, because you can level it up).
-In addition -- the most important price data -- the 21/20 corrupted price, is usually low confidence for most gems. The actual price for most 21/20 corrupted gems varies a lot and profit may depend on what price the gems actually sell for.
+In addition -- the most important price data -- the 21/20 corrupted price, is usually low confidence for most gems. The actual price for most 21/20 corrupted gems varies a lot, and profit may depend on what price the gems actually sell for.
 Also, temple double corrupting isn't implemented, mostly because the data is just not good enough to automatically import.
 
 I would recommend -- if you're serious about making money corrupting or double-corrupting gems, to either make a spreadsheet or some sort of modification that allows for manual price entry, and to validate each outcome's price manually.
@@ -113,7 +122,7 @@ One small quirk / issue is that, when choosing the most 'reasonable' price / ite
     111.59/t: Divergent Blood and Sand 4/20 -> Anomalous Blood and Sand 6/20, repeat @ 1.598411 tries
     Value: 478.13, Lens Cost: 239.76165, Gem Cost: 60.0, Gems Listed: Pre: 32 / Post: 98
 
-Usually, this isn't off by enough to totally make the trade unprofitable, but it may warrant a manual check, something like one of the two, depending on which sort method you care about:
+Usually, this isn't off by enough to totally make the trade unprofitable, but it may warrant a manual check, something like one of the two, depending on which sorting method you care about:
 
     post_gem_price - initial_gem_price - (tries * lens_cost)
     (post_gem_price - initial_gem_price - (tries * lens_cost) / tries)
@@ -123,13 +132,13 @@ Much of the other 'quirks' basically come down to -- what strategy do you want t
 ## (Re-) Generating Data Files
 #### Multiple Lens Weight Generation
 The data file that holds all simulated weights for multiple-style lens use can be recreated with `m_weights.py`.
-If you run this file (`python .\m_weights`), it will begin to go through each gem and simulate using regrading lenses on them multiple times, to see how many lenses it takes on average to hit the desirec gem (for each possible operation).
+If you run this file (`python .\m_weights`), it will begin to go through each gem and simulate using regrading lenses on them multiple times, to see how many lenses it takes on average to hit the desired gem (for each possible operation).
 
 This has the potential to take a while, depending on how long you want to simulate for. The default - 1,000,000 - takes me 900-1000 seconds on a 5950x with all 32 threads. It's probably overkill to run at 1 million, and the algorithm could definitely use some optimization, but it only needs to be run once, and it's pre-generated, so most people shouldn't need to touch it.
 
 If you want to change the number of iterations, you can via the `global_iterations` variable at the top of the script.
 
-It will overwite the existing `m_weights.json` once it finishes, so do be careful.
+It will overwrite the existing `m_weights.json` once it finishes, so do be careful.
 
 #### Updating gem weights
 The gem weights come from poedb.tw (POE DB), and can be found here: `https://poedb.tw/us/Quality#UnusualGemsQuality`
