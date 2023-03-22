@@ -9,7 +9,7 @@ TL;DR: It looks up the prices of gems and regrading lenses, and uses alt-quality
 ## Usage
 Download the latest release and unzip to a separate folder. Run the program command-line from the folder as follows:
 
-    .\gem_arbitrage.exe
+    .\gem-arbitrage.exe
 
 And you're done. Release is only for Windows at the moment. Linux users can just run it from source.
 
