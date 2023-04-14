@@ -152,7 +152,7 @@ If needed -- due to an update or otherwise, for `gems.csv` to be recreated / upd
 The way I do it is just copy/paste the whole table into Excel / Google Sheets and get to deleting rows, cleaning up, etc., to get it to fit. It's not a super clean process, but it only needs to be done once, or at least, when new skill gems are added. It shouldn't break, just new gems won't be calculated for.
 
 ## Packaging binary
-The way I package the binary for Windows for release is as follows. Packaged with Python 3.9.
+The way I package the binary for Windows for release is as follows. Packaged with Python 3.10.6.
 
     pip install pyinstaller
     pyinstaller .\gem-arbitrage.py --onefile
