@@ -89,14 +89,14 @@ class Controller:
     if display_single_lens_trades: include_methods_in_results.append("single")
     if display_repeat_lens_trades: include_methods_in_results.append("repeat")
     if display_primary_lens_trades: include_types_in_results.append("Primary")
-    if display_primary_lens_trades: include_types_in_results.append("Secondary")
+    if display_secondary_lens_trades: include_types_in_results.append("Secondary")
 
   except Exception as e:
     print(f"Error loading settings.ini file. Please check the exception below and the corresponding entry in the settings file.\nMost likely, the format for your entry is off. Check the top of settings.ini for more info.\n\n{traceback.format_exc()}")
     exit()
 
   # Fetch URL to file (with some error catching)
-  def fetch(self, filename, url):
+  def fetch(filename, url):
     do_fetch = True
     try:
       if path.exists(filename):
@@ -105,33 +105,33 @@ class Controller:
         delta = (current_time - modify_time).total_seconds()
         if delta < Controller.max_data_staleness:
           do_fetch = False
-          if not self.DISABLE_OUT: print(f"Data is {int(delta)}s old, skipping a new fetch.")
+          if not Controller.DISABLE_OUT: print(f"Data is {int(delta)}s old, skipping a new fetch.")
     except Exception as e:
-      if not self.DISABLE_OUT: print("ERROR: Error determining poe.ninja data staleness. Pulling new data.")
+      if not Controller.DISABLE_OUT: print("ERROR: Error determining poe.ninja data staleness. Pulling new data.")
     try:
       if do_fetch:
-        if not self.DISABLE_OUT: print("Fetching new data from poe.ninja...")
+        if not Controller.DISABLE_OUT: print("Fetching new data from poe.ninja...")
         response = requests.get(url)
         if path.exists(filename):
-          if not self.DISABLE_OUT: print("File already exists, deleting.")
+          if not Controller.DISABLE_OUT: print("File already exists, deleting.")
           os.remove(filename)
-        if not self.DISABLE_OUT: print("Fetching complete.")
+        if not Controller.DISABLE_OUT: print("Fetching complete.")
         f = open(filename, 'w')
         f.write(response.text)
         f.close()
     except Exception as e:
       print(url)
-      if not self.DISABLE_OUT: print("ERROR: Error fetching.")
-      if not self.DISABLE_OUT: print(e)
+      if not Controller.DISABLE_OUT: print("ERROR: Error fetching.")
+      if not Controller.DISABLE_OUT: print(e)
 
   # Load gems and prices from poe.ninja listings into memory
-  def load_gems_from_json(self, _file):
+  def load_gems_from_json(_file):
     with open(_file) as s_json:
       raw = json.load(s_json)
     for line_item in raw['lines']:
       new_gem = Gem()
 
-      for gem_type in self.gem_types:
+      for gem_type in Controller.gem_types:
         if gem_type in line_item['name']:
           new_gem.name = ' '.join(line_item['name'].split()[1:])
           new_gem.type = gem_type
@@ -159,15 +159,15 @@ class Controller:
       else:
         new_gem.corrupt = False
 
-      self.gems.append(new_gem)
-      if new_gem.name not in self.gems_dict:
-        self.gems_dict[new_gem.name] = []
-      self.gems_dict[new_gem.name].append(new_gem)
+      Controller.gems.append(new_gem)
+      if new_gem.name not in Controller.gems_dict:
+        Controller.gems_dict[new_gem.name] = []
+      Controller.gems_dict[new_gem.name].append(new_gem)
 
-    print(f"Loaded {len(self.gems)} gems from poe.ninja.")
+    print(f"Loaded {len(Controller.gems)} gems from poe.ninja.")
 
   # Import gem weight csv
-  def import_gem_weights(self, _gem_file):
+  def import_gem_weights(_gem_file):
     with open(_gem_file) as gemsfile:
       reader = csv.reader(gemsfile, delimiter=',', quotechar='|')
       line_count = 0
@@ -179,26 +179,26 @@ class Controller:
       print(f"Loaded {line_count} gem weights.")
 
 # Import currency prices from file
-  def import_currency_prices(self):
-    with open(self.ninja_json_currency_filename) as curfile:
+  def import_currency_prices():
+    with open(Controller.ninja_json_currency_filename) as curfile:
       raw = json.load(curfile)
       for line_item in raw['lines']:
         if line_item['currencyTypeName'] == 'Prime Regrading Lens':
-          self.prime_lens_price = int(line_item['chaosEquivalent'])
+          Controller.prime_lens_price = int(line_item['chaosEquivalent'])
 
         if line_item['currencyTypeName'] == 'Secondary Regrading Lens':
-          self.secondary_lens_price = int(line_item['chaosEquivalent'])
+          Controller.secondary_lens_price = int(line_item['chaosEquivalent'])
 
         if line_item['currencyTypeName'] == 'Divine Orb':
-          self.DIV_PRICE = int(line_item['chaosEquivalent'])
-      if not self.DISABLE_OUT: print(f'Using poe.ninja currency prices:\nPrime: {self.prime_lens_price}c\nSecondary: {self.secondary_lens_price}c\nDivine: {self.DIV_PRICE}c\n')
+          Controller.DIV_PRICE = int(line_item['chaosEquivalent'])
+      if not Controller.DISABLE_OUT: print(f'Using poe.ninja currency prices:\nPrime: {Controller.prime_lens_price}c\nSecondary: {Controller.secondary_lens_price}c\nDivine: {Controller.DIV_PRICE}c\n')
 
 
   # Internal method for retrieving gems of specific attributes
-  def get_gems(self, _name, _type=None, _lv=None, _qual=None, _isCorrupt=None):
+  def get_gems(_name, _type=None, _lv=None, _qual=None, _isCorrupt=None):
     _gems = []
-    if _name not in self.gems_dict: return []
-    for gem in self.gems_dict[_name]:
+    if _name not in Controller.gems_dict: return []
+    for gem in Controller.gems_dict[_name]:
       if gem.name == _name:
         exclude =\
           (_type is not None and _type != gem.type) or\
@@ -211,12 +211,12 @@ class Controller:
 
 
   # Internal method for retrieving all gem names
-  def get_gem_names(self):
-    return list(self.gems_dict.keys())
+  def get_gem_names():
+    return list(Controller.gems_dict.keys())
 
 
   # Internal method for determining the most common variant (level / quality) of a gem to determine price
-  def choose_gem(self, _gem_type_list, lookup_map_l, lookup_map_q):
+  def choose_gem(_gem_type_list, lookup_map_l, lookup_map_q):
     for level in lookup_map_l:
       for quality in lookup_map_q:
         for gem in _gem_type_list:
@@ -229,14 +229,14 @@ class Controller:
 
 
   # Returns how many tries on average it will take to get from one gem to another
-  def get_tries(self, _pre_gem, _post_gem, _method):
+  def get_tries(_pre_gem, _post_gem, _method):
     if _method == "single":
       name = _pre_gem.name
       pre_type = _pre_gem.type
       post_type = _post_gem.type
       if not (name in Controller.lens_weights and pre_type in Controller.lens_weights[name] and post_type in
               Controller.lens_weights[name]):
-        if not self.DISABLE_OUT: print(f"Warning: {_pre_gem.name} not found in CSV weights")
+        if not Controller.DISABLE_OUT: print(f"Warning: {_pre_gem.name} not found in CSV weights")
         return -1
       pre_weight = Controller.lens_weights[name][pre_type]
       post_weight = Controller.lens_weights[name][post_type]
@@ -259,16 +259,15 @@ class Controller:
 
 
   # Main method for doing trade calculations
-  def calc(self):
-    gem_name_list = self.get_gem_names()
-    if not self.DISABLE_OUT: print("Calculating trades...")
+  def calc():
+    gem_name_list = Controller.get_gem_names()
+    if not Controller.DISABLE_OUT: print("Calculating trades...")
     for gem_name in gem_name_list:
-      for pre_type in self.gem_types:
+      for pre_type in Controller.gem_types:
         # Corrupt Operation
         corrupt_op = CorruptOperation()
-        corrupt_op.control = self
 
-        pre_gem_list = self.get_gems(gem_name, _type=pre_type, _lv=20, _qual=20, _isCorrupt=False)
+        pre_gem_list = Controller.get_gems(gem_name, _type=pre_type, _lv=20, _qual=20, _isCorrupt=False)
 
         if not pre_gem_list:
           pass
@@ -279,9 +278,9 @@ class Controller:
           if corrupt_op.profit:
             Controller.all_corrupt_operations.append(corrupt_op)
 
-        for post_type in [g for g in self.gem_types if g != pre_type]:
-          pre_gems = self.get_gems(gem_name, _type=pre_type)
-          post_gems = self.get_gems(gem_name, _type=post_type)
+        for post_type in [g for g in Controller.gem_types if g != pre_type]:
+          pre_gems = Controller.get_gems(gem_name, _type=pre_type)
+          post_gems = Controller.get_gems(gem_name, _type=post_type)
 
           if None in pre_gems or None in post_gems:
             continue
@@ -298,53 +297,53 @@ class Controller:
             if gem.quality not in post_quals: post_quals.append(gem.quality)
             if gem.level not in post_levels: post_levels.append(gem.level)
 
-          filtered_pre_level_match_order = [i for i in self.gem_level_match_order if i in pre_levels]
-          filtered_pre_qual_match_order = [i for i in self.gem_qual_match_order if i in pre_quals]
-          filtered_post_level_match_order = [i for i in self.gem_level_match_order if i in post_levels]
-          filtered_post_qual_match_order = [i for i in self.gem_qual_match_order if i in post_quals]
+          filtered_pre_level_match_order = [i for i in Controller.gem_level_match_order if i in pre_levels]
+          filtered_pre_qual_match_order = [i for i in Controller.gem_qual_match_order if i in pre_quals]
+          filtered_post_level_match_order = [i for i in Controller.gem_level_match_order if i in post_levels]
+          filtered_post_qual_match_order = [i for i in Controller.gem_qual_match_order if i in post_quals]
 
-          pre_gem = self.choose_gem(pre_gems, filtered_pre_level_match_order, filtered_pre_qual_match_order)
-          post_gem = self.choose_gem(post_gems, filtered_post_level_match_order, filtered_post_qual_match_order)
+          pre_gem = Controller.choose_gem(pre_gems, filtered_pre_level_match_order, filtered_pre_qual_match_order)
+          post_gem = Controller.choose_gem(post_gems, filtered_post_level_match_order, filtered_post_qual_match_order)
 
           if None in [pre_gem, post_gem]:
             continue
 
-          for method in self.include_methods_in_results:
+          for method in Controller.include_methods_in_results:
             swap = LensOperation()
             swap.pre_gem = pre_gem
             swap.post_gem = post_gem
             swap.method = method
             swap.sort_method = Controller.LENS_SORT_METHOD
             swap.gem_cost = pre_gem.chaos_value
-            swap.tries = self.get_tries(pre_gem, post_gem, method)
+            swap.tries = Controller.get_tries(pre_gem, post_gem, method)
             swap.value = post_gem.chaos_value
             Controller.all_lens_operations.append(swap)
 
 
   # Sort through all trades calculated and display them based on settings
-  def get_profitable_trades(self):
+  def get_profitable_trades():
     profitable_trades = [op for op in Controller.all_lens_operations if
-                         op.switched_profit()() > self.gem_operation_price_floor and op.tries > 0 and
+                         op.switched_profit()() > Controller.gem_operation_price_floor and op.tries > 0 and
                          op.obeys_confidence() and op.obeys_vaal() and op.obeys_disallow() and
-                         (op.lens_type() in self.include_types_in_results)]
+                         (op.lens_type() in Controller.include_types_in_results)]
 
-    profitable_trades.sort(key=lambda x: x.switched_profit()(), reverse=not self.reverse_console_listings)
+    profitable_trades.sort(key=lambda x: x.switched_profit()(), reverse=not Controller.reverse_console_listings)
     
-    if self.reverse_console_listings:
-      return profitable_trades[len(profitable_trades) - min(self.MAX_RESULTS, len(profitable_trades)):]
+    if Controller.reverse_console_listings:
+      return profitable_trades[len(profitable_trades) - min(Controller.MAX_RESULTS, len(profitable_trades)):]
     else:
-      return profitable_trades[:self.MAX_RESULTS]
+      return profitable_trades[:Controller.MAX_RESULTS]
 
 
   # Sort through all vaal operations calculated and display them based on settings
-  def get_profitable_vaal(self):
+  def get_profitable_vaal():
     profitable_vaal = [op for op in Controller.all_corrupt_operations if op.profit > 0 and op.obeys_price_floor()]
-    profitable_vaal.sort(key=lambda x: x.profit, reverse=not self.reverse_console_listings)
+    profitable_vaal.sort(key=lambda x: x.profit, reverse=not Controller.reverse_console_listings)
 
-    if self.reverse_console_listings:
-      return profitable_vaal[len(profitable_vaal) - min(self.MAX_RESULTS, len(profitable_vaal)):]
+    if Controller.reverse_console_listings:
+      return profitable_vaal[len(profitable_vaal) - min(Controller.MAX_RESULTS, len(profitable_vaal)):]
     else:
-      return profitable_vaal[:self.MAX_RESULTS]
+      return profitable_vaal[:Controller.MAX_RESULTS]
 
 
 # Holds data and methods for trades (lens operations)
@@ -426,7 +425,6 @@ class CorruptOperation:
     # M1 for single corrupt, M2 for temple double corrupt
     # M2 / double corrupt isn't implemented yet
     self.corrupt_mode = "M1"
-    self.control = None
     self.profit = None
     self.all_gems = None
 
@@ -445,8 +443,8 @@ class CorruptOperation:
     start_lv = 20
     start_qual = 20
     sum = 0
-    named_gems = self.control.get_gems(self.pre_gem.name, _type=self.pre_gem.type)
-    named_vaal_gems = self.control.get_gems(f"Vaal {self.pre_gem.name}")
+    named_gems = Controller.get_gems(self.pre_gem.name, _type=self.pre_gem.type)
+    named_vaal_gems = Controller.get_gems(f"Vaal {self.pre_gem.name}")
     has_vaal = self.pre_gem.has_vaal()
     gems_0_8 = [None, None, None, None, None, None, None, None]
 
@@ -538,19 +536,18 @@ class Gem:
 
 # Main method
 def main():
-  control = Controller()
-  control.fetch(control.ninja_json_filename, control.API_URL)
-  if control.pull_currency_prices:
-    control.fetch(control.ninja_json_currency_filename, control.CUR_API_URL)
-    control.import_currency_prices()
-  elif not control.DISABLE_OUT:
-      print(f'Using manual currency prices:\nPrime: {control.prime_lens_price}c\nSecondary: {control.secondary_lens_price}c\nDivine: {control.DIV_PRICE}c\n')
+  Controller.fetch(Controller.ninja_json_filename, Controller.API_URL)
+  if Controller.pull_currency_prices:
+    Controller.fetch(Controller.ninja_json_currency_filename, Controller.CUR_API_URL)
+    Controller.import_currency_prices()
+  elif not Controller.DISABLE_OUT:
+      print(f'Using manual currency prices:\nPrime: {Controller.prime_lens_price}c\nSecondary: {Controller.secondary_lens_price}c\nDivine: {Controller.DIV_PRICE}c\n')
 
-  control.load_gems_from_json(control.ninja_json_filename)
-  control.import_gem_weights(control.gem_file)
-  control.calc()
-  profitable_trades = control.get_profitable_trades()
-  profitable_vaal = control.get_profitable_vaal()
+  Controller.load_gems_from_json(Controller.ninja_json_filename)
+  Controller.import_gem_weights(Controller.gem_file)
+  Controller.calc()
+  profitable_trades = Controller.get_profitable_trades()
+  profitable_vaal = Controller.get_profitable_vaal()
 
   if Controller.print_trades:
     print(f"Displaying {len(profitable_trades)} trades.\n")
