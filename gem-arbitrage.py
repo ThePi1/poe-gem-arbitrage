@@ -64,8 +64,11 @@ class Controller:
     ninja_json_filename               = str(parser.get('filepaths', "ninja_json_filename"))
     ninja_json_currency_filename      = str(parser.get('filepaths', "ninja_json_currency_filename"))
     gem_file                          = str(parser.get('filepaths', "gem_file"))
+    version_file                      = str(parser.get('filepaths', "version_file"))
     API_URL                           = str(parser.get('filepaths', 'api_url'))
     CUR_API_URL                       = str(parser.get('filepaths', 'cur_api_url'))
+    version_url                       = str(parser.get('filepaths', 'version_url'))
+    project_url                       = str(parser.get('filepaths', 'project_url'))
     prime_lens_price                  = int(parser.get('market_settings', 'prime_lens_price'))
     secondary_lens_price              = int(parser.get('market_settings', 'secondary_lens_price'))
     max_data_staleness                = int(parser.get('general', 'max_data_staleness'))
@@ -94,6 +97,20 @@ class Controller:
   except Exception as e:
     print(f"Error loading settings.ini file. Please check the exception below and the corresponding entry in the settings file.\nMost likely, the format for your entry is off. Check the top of settings.ini for more info.\n\n{traceback.format_exc()}")
     exit()
+
+  def check_version():
+    try:
+      print("Checking version...\n")
+      latest_version = requests.get(Controller.version_url).text
+      with open(Controller.version_file) as local_version_file:
+        local_version = local_version_file.read()
+        if local_version != latest_version:
+          print(f"Version {local_version} may be out of date!\nLatest version: {latest_version}\n\nPlease visit {Controller.project_url} to download the latest version.")
+          print("Or, if running from source, please pull the latest changes via 'git pull'")
+        else:
+          print(f"Version {local_version} is up to date.")
+    except Exception as e:
+      print(f"Error checking version: {e}")
 
   # Fetch URL to file (with some error catching)
   def fetch(filename, url):
@@ -557,6 +574,8 @@ def main():
     print(f"{len(Controller.all_corrupt_operations)} valid corrupt operations found.")
     for op in profitable_vaal:
       print(f"{op}\n")
+  
+  Controller.check_version()
 
 
 if __name__ == '__main__':
