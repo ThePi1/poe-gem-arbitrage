@@ -41,5 +41,7 @@ shutil.copytree(data_dir, os.path.join(temp_dir, data_dir))
 print("Zipping data...")
 shutil.make_archive(out_filename, 'zip', temp_dir)
 
-print("Cleaning up...")
+print("(Attempting to) clean up...")
 clean_folders([dist_dir, build_dir, temp_dir])
+if os.path.exists("gem-arbitrage.spec"):
+    os.remove("gem-arbitrage.spec")
