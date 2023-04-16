@@ -136,7 +136,7 @@ Much of the other 'quirks' basically come down to -- what strategy do you want t
 ## (Re-) Generating Data Files
 #### Multiple Lens Weight Generation
 The data file that holds all simulated weights for multiple-style lens use can be recreated with `m_weights.py`.
-If you run this file (`python .\m_weights`), it will begin to go through each gem and simulate using regrading lenses on them multiple times, to see how many lenses it takes on average to hit the desired gem (for each possible operation).
+If you run this file (`python .\tools\m_weights`), it will begin to go through each gem and simulate using regrading lenses on them multiple times, to see how many lenses it takes on average to hit the desired gem (for each possible operation).
 
 This has the potential to take a while, depending on how long you want to simulate for. The default - 1,000,000 - takes me 900-1000 seconds on a 5950x with all 32 threads. It's probably overkill to run at 1 million, and the algorithm could definitely use some optimization, but it only needs to be run once, and it's pre-generated, so most people shouldn't need to touch it.
 
@@ -152,7 +152,14 @@ If needed -- due to an update or otherwise, for `gems.csv` to be recreated / upd
 The way I do it is just copy/paste the whole table into Excel / Google Sheets and get to deleting rows, cleaning up, etc., to get it to fit. It's not a super clean process, but it only needs to be done once, or at least, when new skill gems are added. It shouldn't break, just new gems won't be calculated for.
 
 ## Packaging binary
-The way I package the binary for Windows for release is as follows. Packaged with Python 3.10.6.
+Packaged with Python 3.10.6.
+
+Run the packaging tool from the root folder as follows:
+
+    python .\tools\pack.py
+
+
+Alternatively, manually, you can pack as follows:
 
     pip install pyinstaller
     pyinstaller .\gem-arbitrage.py --onefile
