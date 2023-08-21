@@ -1,3 +1,4 @@
+﻿Item,Type,Weight
 Fireball,Superior,50
 Fireball,Anomalous,100
 Fireball,Divergent,40
@@ -88,8 +89,8 @@ Lesser Multiple Projectiles Support,Superior,50
 Lesser Multiple Projectiles Support,Anomalous,100
 Lesser Multiple Projectiles Support,Divergent,50
 Faster Projectiles Support,Superior,50
-Faster Projectiles Support,Anomalous,100
-Faster Projectiles Support,Divergent,100
+Faster Projectiles Support,Anomalous,10
+Faster Projectiles Support,Divergent,50
 Added Cold Damage Support,Superior,50
 Added Cold Damage Support,Anomalous,100
 Added Cold Damage Support,Divergent,100
@@ -463,6 +464,9 @@ Chain Support,Divergent,50
 Fork Support,Superior,50
 Fork Support,Anomalous,100
 Fork Support,Divergent,10
+Returning Projectiles Support,Superior,50
+Returning Projectiles Support,Anomalous,50
+Returning Projectiles Support,Divergent,20
 Flammability,Superior,50
 Flammability,Anomalous,100
 Flammability,Divergent,100
@@ -1447,6 +1451,45 @@ Manaforged Arrows Support,Anomalous,50
 Manaforged Arrows Support,Divergent,10
 Snipe,Superior,100
 Quickstep,Superior,100
+Trauma Support,Superior,50
+Trauma Support,Anomalous,50
+Trauma Support,Divergent,10
+Spellblade Support,Superior,50
+Spellblade Support,Anomalous,20
+Spellblade Support,Divergent,50
+Devour Support,Superior,50
+Devour Support,Anomalous,50
+Devour Support,Divergent,50
+Fresh Meat Support,Superior,50
+Fresh Meat Support,Anomalous,50
+Fresh Meat Support,Divergent,50
+Flamewood Support,Anomalous,50
+Corrupting Cry Support,Superior,50
+Corrupting Cry Support,Anomalous,50
+Corrupting Cry Support,Divergent,50
+[UNUSED] Conflagration Support,Superior,50
+[UNUSED] Conflagration Support,Anomalous,50
+[UNUSED] Conflagration Support,Divergent,20
+Guardian's Blessing Support,Superior,50
+Guardian's Blessing Support,Divergent,20
+Sacrifice Support,Superior,50
+Sacrifice Support,Anomalous,50
+Sacrifice Support,Divergent,20
+Frigid Bond Support,Superior,50
+Frigid Bond Support,Anomalous,50
+Frigid Bond Support,Divergent,50
+Locus Mine Support,Superior,50
+Locus Mine Support,Anomalous,50
+Locus Mine Support,Divergent,50
+Sadism Support,Superior,50
+Sadism Support,Anomalous,20
+Sadism Support,Divergent,50
+Controlled Blaze Support,Superior,50
+Controlled Blaze Support,Anomalous,50
+Controlled Blaze Support,Divergent,20
+Volatility Support,Superior,50
+Volatility Support,Anomalous,50
+Volatility Support,Divergent,100
 Vaal Fireball,Anomalous,100
 Vaal Fireball,Divergent,40
 Vaal Fireball,Phantasmal,10
@@ -1617,3 +1660,7 @@ Prismatic Burst Support,Divergent,50
 Prismatic Burst Support,Phantasmal,50
 Snipe,Anomalous,50
 Snipe,Divergent,50
+Flamewood Support,Superior,50
+Flamewood Support,Divergent,20
+Guardian's Blessing Support,Anomalous,50
+Guardian's Blessing Support,Divergent,20

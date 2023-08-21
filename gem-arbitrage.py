@@ -190,6 +190,7 @@ class Controller:
       line_count = 0
       for row in reader:
         line_count += 1
+        if line_count == 1: continue # Skip first line in CSV
         if row[0] not in Controller.lens_weights:
           Controller.lens_weights[row[0]] = {} 
         Controller.lens_weights[row[0]][row[1]] = int(row[2])

@@ -6,7 +6,7 @@ import json
 
 v2_weights_m1 = {}
 gem_types = ['Superior', 'Anomalous', 'Divergent', 'Phantasmal']
-gem_file = "data/gems.csv"
+gem_file = "../data/gems.csv"
 global_iterations = 1000000
 
 def import_gem_weights(_gem_file):
@@ -15,6 +15,7 @@ def import_gem_weights(_gem_file):
     line_count = 0
     for row in reader:
       line_count += 1
+      if line_count == 1: continue # Skip first line in CSV
       if row[0] not in v2_weights_m1:
         v2_weights_m1[row[0]] = {}
       v2_weights_m1[row[0]][row[1]] = int(row[2])
@@ -30,7 +31,8 @@ def gemcalc(a, start_type, end_type):
     prob_top = 0
     r = random.random()
     num += 1
-    nextgems = {i: a[i] for i in a if i != cur}
+    nextgems = dict(a)
+    nextgems.pop(cur)
     probsum = sum(nextgems.values())
     gem_and_prob_range = {}
     for gem in nextgems.items():
@@ -80,7 +82,7 @@ def calc_m2_weights():
   out = p_map(lenses_to_hit, list(v2_weights_m1.keys()))
   for m2_gem_weight in out:
     all_m2_weights.update(m2_gem_weight)
-  p_export(all_m2_weights, "data/m_weights.json")
+  p_export(all_m2_weights, "../data/m_weights.json")
   end_time = time.time()
   print('Done in {:.4f} seconds'.format(end_time - start_time))
 
