@@ -592,8 +592,6 @@ class WatcherOperation:
       print(f"Error - could not find gem {awakened_name} in VW calc.")
       return None
     chosen_gem = WatcherOperation.vw_choose_gem(candidates, WatcherOperation.level_priority, WatcherOperation.qual_priority)
-    #chosen_gem = Controller.choose_gem(candidates, WatcherOperation.level_priority, WatcherOperation.qual_priority)
-    print(f"Using {chosen_gem}")
     return chosen_gem
   
   def is_valid_vw_by_name(name):
