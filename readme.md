@@ -112,6 +112,15 @@ The top line lists the gem (20/20) and the estimated profit per try. The second 
 
 Normally, all (or almost all) of the profit comes from hitting 21/20 gems.
 
+## Vivid Watchers (awakened gem rerolls)
+In beta - quirks beware - this is controlled by the `print_watchers` setting.
+Be sure to also update the `vivid_watcher_price` setting as it doesn't yet pull data from any API. It needs to be set manually.
+
+Weights are taken from the "Wealthy Exiles DB" sheet and Discord. Not able to verify these weights independently yet.
+
+For more information on this, see:
+https://www.poewiki.net/wiki/Vivid_Watcher
+
 ## Quirks and Issues
 #### Vaal operations
 Vaal operations really depend on good data, that poe.ninja has a tough time providing. We have to take some liberties with some of the numbers (for example, most gems don't have a price for a 19/20 corrupted gem, but it's usually close enough to a corrupted 20/20, because you can level it up).
