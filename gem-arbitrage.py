@@ -36,8 +36,10 @@ class Controller:
   simulated_weight_filename = str(parser.get('filepaths', 'simulated_weight_filename'))
   simulated_weights = import_sim_json(simulated_weight_filename)
   lens_weights = {}
+  vivid_watcher_weights = {}
   all_lens_operations = []
   all_corrupt_operations = []
+  all_watcher_operations = []
   results = []
   gems = []
   gems_dict = {}
@@ -64,6 +66,7 @@ class Controller:
     ninja_json_filename               = str(parser.get('filepaths', "ninja_json_filename"))
     ninja_json_currency_filename      = str(parser.get('filepaths', "ninja_json_currency_filename"))
     gem_file                          = str(parser.get('filepaths', "gem_file"))
+    vivid_watcher_file                = str(parser.get('filepaths', "vivid_watcher_file"))
     version_file                      = str(parser.get('filepaths', "version_file"))
     API_URL                           = str(parser.get('filepaths', 'api_url'))
     CUR_API_URL                       = str(parser.get('filepaths', 'cur_api_url'))
@@ -71,10 +74,13 @@ class Controller:
     project_url                       = str(parser.get('filepaths', 'project_url'))
     prime_lens_price                  = int(parser.get('market_settings', 'prime_lens_price'))
     secondary_lens_price              = int(parser.get('market_settings', 'secondary_lens_price'))
+    vivid_watcher_price               = int(parser.get('market_settings', 'vivid_watcher_price'))
+    yellow_beast_price                = int(parser.get('market_settings', 'yellow_beast_price'))
     max_data_staleness                = int(parser.get('general', 'max_data_staleness'))
     DISABLE_OUT                       = not is_true(parser.get('general', 'debug_messages'))
     print_trades                      = is_true(parser.get('general', 'print_trades'))
     print_corrupts                    = is_true(parser.get('general', 'print_corrupts'))
+    print_watchers                    = is_true(parser.get('general', 'print_watchers'))
     pull_currency_prices              = is_true(parser.get('general', 'pull_currency_prices'))
     MAX_RESULTS                       = int(parser.get('general', 'max_results'))
     DIV_PRICE                         = int(parser.get('market_settings', 'divine_price'))
@@ -196,6 +202,13 @@ class Controller:
         Controller.lens_weights[row[0]][row[1]] = int(row[2])
       print(f"Loaded {line_count} gem weights.")
 
+  # Import gem weight csv
+  def import_vivid_watcher_weights(_file):
+    with open(_file) as w_file:
+      reader = csv.reader(w_file, delimiter=',', quotechar='|')
+      for row in reader:
+        Controller.vivid_watcher_weights[row[0]] = int(row[1])
+
 # Import currency prices from file
   def import_currency_prices():
     with open(Controller.ninja_json_currency_filename) as curfile:
@@ -280,21 +293,34 @@ class Controller:
   def calc():
     gem_name_list = Controller.get_gem_names()
     if not Controller.DISABLE_OUT: print("Calculating trades...")
+
+    # Calculate VW profit if needed
+    if Controller.print_watchers:
+      WatcherOperation.get_return()
+
     for gem_name in gem_name_list:
+
+      if Controller.print_watchers and WatcherOperation.is_valid_vw_by_name(gem_name):
+        watcher_op = WatcherOperation()
+        watcher_op.pre_gem = WatcherOperation.get_awakened_from_name(gem_name)
+        watcher_op.profit = watcher_op.get_profit()
+        Controller.all_watcher_operations.append(watcher_op)
+      
       for pre_type in Controller.gem_types:
-        # Corrupt Operation
-        corrupt_op = CorruptOperation()
+        if Controller.print_corrupts:
+          # Corrupt Operation
+          corrupt_op = CorruptOperation()
 
-        pre_gem_list = Controller.get_gems(gem_name, _type=pre_type, _lv=20, _qual=20, _isCorrupt=False)
+          pre_gem_list = Controller.get_gems(gem_name, _type=pre_type, _lv=20, _qual=20, _isCorrupt=False)
 
-        if not pre_gem_list:
-          pass
-        else:
-          pre_gem = pre_gem_list[0]
-          corrupt_op.pre_gem = pre_gem
-          corrupt_op.profit = corrupt_op.get_profit()
-          if corrupt_op.profit:
-            Controller.all_corrupt_operations.append(corrupt_op)
+          if not pre_gem_list:
+            pass
+          else:
+            pre_gem = pre_gem_list[0]
+            corrupt_op.pre_gem = pre_gem
+            corrupt_op.profit = corrupt_op.get_profit()
+            if corrupt_op.profit:
+              Controller.all_corrupt_operations.append(corrupt_op)
 
         for post_type in [g for g in Controller.gem_types if g != pre_type]:
           pre_gems = Controller.get_gems(gem_name, _type=pre_type)
@@ -362,6 +388,17 @@ class Controller:
       return profitable_vaal[len(profitable_vaal) - min(Controller.MAX_RESULTS, len(profitable_vaal)):]
     else:
       return profitable_vaal[:Controller.MAX_RESULTS]
+    
+  # Sort through all vivid watcher operations calculated and display them based on settings
+  def get_profitable_watcher():
+    profitable_watcher = [op for op in Controller.all_watcher_operations if op.profit != None]
+    profitable_watcher.sort(key=lambda x: x.profit, reverse=not Controller.reverse_console_listings)
+
+    if Controller.reverse_console_listings:
+      return profitable_watcher[len(profitable_watcher) - min(Controller.MAX_RESULTS, len(profitable_watcher)):]
+    else:
+      return profitable_watcher[:Controller.MAX_RESULTS]
+
 
 
 # Holds data and methods for trades (lens operations)
@@ -516,6 +553,60 @@ class CorruptOperation:
   def obeys_price_floor(self):
     return self.pre_gem.chaos_value > Controller.corrupt_operation_price_floor
 
+# Holds data and methods about the use of Vivid Watcher
+class WatcherOperation:
+  level_priority = [1,2,3,4,5,6]
+  qual_priority = [20,0,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]
+  # Average return for all gems
+  return_value = None
+  def __init__(self):
+    self.pre_gem = None
+    # For now, the default level is 1 for all these operations
+    self.default_level = 1
+    self.profit = None
+
+  def __str__(self):
+    return f"{self.pre_gem.name}: {self.get_profit():.2f}/try (Base value: {self.pre_gem.chaos_value:.2f})"
+
+  def get_return():
+    debug = False
+    working_return_value = 0
+    weight_sum = sum(Controller.vivid_watcher_weights.values())
+    for name, weight in Controller.vivid_watcher_weights.items():
+      chosen_gem = WatcherOperation.get_awakened_from_name(name)
+      contribution = chosen_gem.chaos_value * (weight / weight_sum)
+      if debug: print(f"Gem {chosen_gem} adds {contribution:.2f} @ {weight/weight_sum:.2f} to total return value.")
+      working_return_value += contribution
+    WatcherOperation.return_value = working_return_value
+    if debug: print(f"Total return: {working_return_value:.2f}")
+  
+  def get_profit(self):
+    if not self.pre_gem:
+      return None
+    else:
+      return self.return_value - self.pre_gem.chaos_value - Controller.vivid_watcher_price - (3 * Controller.yellow_beast_price)
+    
+  def get_awakened_from_name(awakened_name):
+    candidates = Controller.get_gems(awakened_name, _type=None, _lv=None, _qual=None, _isCorrupt=False)
+    if len(candidates) < 1:
+      print(f"Error - could not find gem {awakened_name} in VW calc.")
+      return None
+    chosen_gem = WatcherOperation.vw_choose_gem(candidates, WatcherOperation.level_priority, WatcherOperation.qual_priority)
+    #chosen_gem = Controller.choose_gem(candidates, WatcherOperation.level_priority, WatcherOperation.qual_priority)
+    print(f"Using {chosen_gem}")
+    return chosen_gem
+  
+  def is_valid_vw_by_name(name):
+    banned_gems = ["Empower", "Enlighten", "Enhance"]
+    if "Awakened" not in name: return False
+    for ban_gem in banned_gems:
+      if ban_gem in name:
+        return False
+    return True
+
+  def vw_choose_gem(gems, lv_prio, q_prio):
+    gems.sort(key=lambda x: x.chaos_value, reverse=False)
+    return gems[0]
 
 # Hold gem data (defines a gem with specific lv/qual/type)
 class Gem:
@@ -550,6 +641,9 @@ class Gem:
 
   def has_vaal(self):
     return f"Vaal {self.name}" in Controller.lens_weights
+  
+  def is_awakened(self):
+    return f"Awakened" in self.name
 
 
 # Main method
@@ -563,9 +657,11 @@ def main():
 
   Controller.load_gems_from_json(Controller.ninja_json_filename)
   Controller.import_gem_weights(Controller.gem_file)
+  Controller.import_vivid_watcher_weights(Controller.vivid_watcher_file)
   Controller.calc()
   profitable_trades = Controller.get_profitable_trades()
   profitable_vaal = Controller.get_profitable_vaal()
+  profitable_watcher = Controller.get_profitable_watcher()
 
   if Controller.print_trades:
     print(f"Displaying {len(profitable_trades)} trades.\n")
@@ -574,6 +670,10 @@ def main():
   if Controller.print_corrupts:
     print(f"{len(Controller.all_corrupt_operations)} valid corrupt operations found.")
     for op in profitable_vaal:
+      print(f"{op}\n")
+  if Controller.print_watchers:
+    print(f"{len(Controller.all_watcher_operations)} valid VW operations found.")
+    for op in profitable_watcher:
       print(f"{op}\n")
   
   Controller.check_version()
