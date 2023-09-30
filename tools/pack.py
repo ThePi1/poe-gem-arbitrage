@@ -15,7 +15,7 @@ temp_dir = "temp"
 dist_dir = "dist"
 build_dir = "build"
 data_dir = "data"
-out_filename = "poe-gem-arbitrage-1.1.0"
+out_filename = "poe-gem-arbitrage-1.3.2"
 
 
 temp_full_path = os.path.abspath(temp_dir)

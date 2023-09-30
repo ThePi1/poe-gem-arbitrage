@@ -7,7 +7,8 @@ A command-line Path of Exile Regrading Lens / vaal trade calculator.
 TL;DR: It looks up the prices of gems and regrading lenses, and uses alt-quality weights to find profitable gems to use them on. Also, does the same (roughly) for vaal orbs.
 
 ## Usage
-Download the latest release and unzip to a separate folder. Run the program command-line from the folder as follows:
+Download the latest release and unzip to a separate folder. Run the executable.
+Optionally, run the program command-line from the folder as follows:
 
     .\gem-arbitrage.exe
 
@@ -94,6 +95,7 @@ There is a good chunk of skill gems with reasonably high multiple-lens costs (ri
 ## Settings
 Settings are controlled by and can be found in the `settings.ini` file. Things like which sort method to use, which types of trades to use, single vs. multiple, etc., all live in the settings file.
 In addition -- there are some values in the `Controller` class that probably won't need to be changed, but in some cases (like changing match order for levels / qualities).
+By default, the program will pause and wait for input to accomodate people running the program outside of a shell. This can be disabled with the `pause_when_done` option.
 
 ## Vaal Outputs
 The secondary mode of this tool can calculate profits on vaaling 20/20 gems. There are some drawbacks to this, which will be detailed below, but let's take a look at an example:
