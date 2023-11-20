@@ -39,7 +39,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>data/icon.png</normaloff>data/icon.png</iconset>
+    <normaloff>data/icon.ico</normaloff>data/icon.ico</iconset>
   </property>
   <property name="tabShape">
    <enum>QTabWidget::Rounded</enum>

@@ -23,7 +23,7 @@ class Ui_GemArbitrageGUI(object):
         GemArbitrageGUI.setMinimumSize(QtCore.QSize(788, 591))
         GemArbitrageGUI.setMaximumSize(QtCore.QSize(788, 591))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("data/icon.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("data/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         GemArbitrageGUI.setWindowIcon(icon)
         GemArbitrageGUI.setTabShape(QtWidgets.QTabWidget.TabShape.Rounded)
         self.centralwidget = QtWidgets.QWidget(parent=GemArbitrageGUI)

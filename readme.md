@@ -165,17 +165,18 @@ The way I do it is just copy/paste the whole table into Excel / Google Sheets an
 ## Packaging binary
 Packaged with Python 3.10.6.
 
-Run the packaging tool from the root folder as follows:
+Run the packaging tool from the src/ folder as follows:
 
     python .\tools\pack.py
 
 
 Alternatively, manually, you can pack as follows:
-
+    > Rename gem-arbitrage.py to gem-arbitrage.pyw
     pip install pyinstaller
     pyinstaller .\gem-arbitrage.py --onefile
     > Go into dist/ folder and grab gem_arbitrage.exe
     > Copy gem_arbitrage.exe, LICENSE, and data/ folder to new folder.
     > Zip up and release
+    > Rename gem-arbitrage.pyw to gem-arbitrage.py
 
 I don't have it packaged for Linux/Mac on hand, but if you want to, you can.

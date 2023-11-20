@@ -25,10 +25,14 @@ data_full_path = os.path.abspath(dist_dir)
 clean_folders([temp_dir, dist_dir, build_dir])
 os.mkdir(temp_dir)
 
+# This suppresses the console when ran as an executable
+os.rename('.\gem-arbitrage.py', '.\gem-arbitrage.pyw')
+
 print("Running pyinstaller...")
 PyInstaller.__main__.run([
     '.\gem-arbitrage.pyw',
-    '--onefile'
+    '--onefile',
+    '--icon=data/icon.ico'
 ])
 print("Copying binary and license...")
 for f in os.listdir(dist_dir):
@@ -45,3 +49,5 @@ print("(Attempting to) clean up...")
 clean_folders([dist_dir, build_dir, temp_dir])
 if os.path.exists("gem-arbitrage.spec"):
     os.remove("gem-arbitrage.spec")
+
+os.rename('.\gem-arbitrage.pyw', '.\gem-arbitrage.py')
