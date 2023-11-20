@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'about.ui'
+# Form implementation generated from reading ui file 'gui_about.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #

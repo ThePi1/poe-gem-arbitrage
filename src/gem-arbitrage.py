@@ -1,12 +1,15 @@
 import csv
 import json
 import os
-from configparser import ConfigParser
+import sys
 import traceback
 import requests
 import datetime
+import ctypes
 from os import path
 from gui import Gui_MainWindow
+from configparser import ConfigParser
+from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton
 
 # Import simulated ("multiple" method) weights
 def import_sim_json(file):
@@ -401,7 +404,16 @@ class Controller:
     else:
       return profitable_watcher[:Controller.MAX_RESULTS]
 
-
+  # Reset local variables
+  def reset():
+    Controller.lens_weights = {}
+    Controller.vivid_watcher_weights = {}
+    Controller.all_lens_operations = []
+    Controller.all_corrupt_operations = []
+    Controller.all_watcher_operations = []
+    Controller.results = []
+    Controller.gems = []
+    Controller.gems_dict = {}
 
 # Holds data and methods for trades (lens operations)
 class LensOperation:
@@ -645,10 +657,9 @@ class Gem:
   def is_awakened(self):
     return f"Awakened" in self.name
 
-
-# Main method
-def main():
-
+def getOutput():
+  Controller.reset()
+  out = { 'gems': '', 'corrupt': '', 'wokegem': '' }
   Controller.fetch(Controller.ninja_json_filename, Controller.API_URL)
   if Controller.pull_currency_prices:
     Controller.fetch(Controller.ninja_json_currency_filename, Controller.CUR_API_URL)
@@ -665,18 +676,51 @@ def main():
   profitable_watcher = Controller.get_profitable_watcher()
 
   if Controller.print_trades:
-    print(f"Displaying {len(profitable_trades)} trades.\n")
+    out['gems'] += f"Displaying {len(profitable_trades)} trades.\n"
     for op in profitable_trades:
-      print(f"{op}\n")
+      out['gems'] += f"{op}\n"
   if Controller.print_corrupts:
-    print(f"{len(Controller.all_corrupt_operations)} valid corrupt operations found.")
+    out['corrupt'] += f"{len(Controller.all_corrupt_operations)} valid corrupt operations found.\n"
     for op in profitable_vaal:
-      print(f"{op}\n")
+      out['corrupt'] += f"{op}\n"
   if Controller.print_watchers:
-    print(f"{len(Controller.all_watcher_operations)} valid VW operations found.")
+    out['wokegem'] += f"{len(Controller.all_watcher_operations)} valid VW operations found.\n"
     for op in profitable_watcher:
-      print(f"{op}\n")
-  
+      out['wokegem'] += f"{op}\n"
+  return out
+
+def runTradesUi(window, app):
+  window.statusBar().showMessage("Calculating...", 10000)
+  app.processEvents()
+  out = getOutput()
+  window.statusBar().clearMessage()
+  window.statusBar().showMessage("Done!", 10000)
+  window.ui.gemTabText.setPlainText(out['gems'])
+  window.ui.corruptTabText.setPlainText(out['corrupt'])
+  window.ui.wokegemTabText.setPlainText(out['wokegem'])
+
+def fix_win_taskbar():
+  app_id = u'thepi-gemarbitrage'
+  ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
+
+# Main method
+def main():
+  # Use this on Windows to add the icon back to the taskbar
+  # No idea how this works on Mac/Linux for now, haha
+  if sys.platform == 'win32':
+    fix_win_taskbar()
+
+  # Create the application and main window
+  app = QApplication(sys.argv)
+  win = Gui_MainWindow()
+
+  win.ui.actionRun_Trades.triggered.connect(lambda: runTradesUi(win, app))
+
+  win.show()
+  # Run the application's main loop
+  sys.exit(app.exec())
+
+  print(getOutput())
   Controller.check_version()
   if Controller.pause_when_done:
     input("\nPress any key to close... ")

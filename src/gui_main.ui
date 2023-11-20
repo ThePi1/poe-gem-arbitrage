@@ -2,22 +2,59 @@
 <ui version="4.0">
  <class>GemArbitrageGUI</class>
  <widget class="QMainWindow" name="GemArbitrageGUI">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>802</width>
-    <height>593</height>
+    <width>788</width>
+    <height>591</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>788</width>
+    <height>591</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>788</width>
+    <height>591</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>POE Gem Arbitrage</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>icon.png</normaloff>icon.png</iconset>
+  </property>
   <property name="tabShape">
-   <enum>QTabWidget::Triangular</enum>
+   <enum>QTabWidget::Rounded</enum>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <widget class="QTabWidget" name="tradeTabs">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -25,6 +62,21 @@
       <width>791</width>
       <height>551</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+    <property name="tabPosition">
+     <enum>QTabWidget::North</enum>
+    </property>
+    <property name="tabShape">
+     <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
      <number>0</number>
@@ -36,64 +88,103 @@
      <bool>false</bool>
     </property>
     <widget class="QWidget" name="gemTab">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <attribute name="title">
       <string>Gems</string>
      </attribute>
-     <widget class="QLabel" name="label">
+     <widget class="QPlainTextEdit" name="gemTabText">
       <property name="geometry">
        <rect>
-        <x>450</x>
+        <x>10</x>
         <y>10</y>
-        <width>321</width>
-        <height>21</height>
+        <width>761</width>
+        <height>501</height>
        </rect>
       </property>
-      <property name="text">
-       <string>Output</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="QPlainTextEdit" name="plainTextEdit">
-      <property name="geometry">
-       <rect>
-        <x>450</x>
-        <y>40</y>
-        <width>321</width>
-        <height>471</height>
-       </rect>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
       <property name="readOnly">
        <bool>true</bool>
       </property>
       <property name="plainText">
-       <string>tyest</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="runTradesButton">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>20</y>
-        <width>75</width>
-        <height>24</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Run trades</string>
+       <string/>
       </property>
      </widget>
     </widget>
     <widget class="QWidget" name="corruptTab">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <attribute name="title">
       <string>Corrupts</string>
      </attribute>
+     <widget class="QPlainTextEdit" name="corruptTabText">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>761</width>
+        <height>501</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+      <property name="plainText">
+       <string/>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="wokegemTab">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <attribute name="title">
       <string>Awakened Gems</string>
      </attribute>
+     <widget class="QPlainTextEdit" name="wokegemTabText">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>761</width>
+        <height>501</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+      <property name="plainText">
+       <string/>
+      </property>
+     </widget>
     </widget>
    </widget>
   </widget>
@@ -102,9 +193,15 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>802</width>
+     <width>788</width>
      <height>22</height>
     </rect>
+   </property>
+   <property name="defaultUp">
+    <bool>false</bool>
+   </property>
+   <property name="nativeMenuBar">
+    <bool>true</bool>
    </property>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -132,6 +229,7 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionRun_Trades"/>
     <addaction name="actionExit"/>
    </widget>
    <addaction name="menuFile"/>
@@ -140,7 +238,11 @@
    <addaction name="menuSettings"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusBar">
+   <property name="sizeGripEnabled">
+    <bool>false</bool>
+   </property>
+  </widget>
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
@@ -178,6 +280,16 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionRun_Trades">
+   <property name="text">
+    <string>Run Trades</string>
+   </property>
+  </action>
+  <action name="actionCheck_for_Updates">
+   <property name="text">
+    <string>Check for Updates</string>
    </property>
   </action>
  </widget>

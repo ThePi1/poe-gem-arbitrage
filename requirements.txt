@@ -1,4 +1,4 @@
 requests
 p_tqdm
 pyinstaller
-pyside6
+pyqt6

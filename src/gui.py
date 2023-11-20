@@ -34,7 +34,7 @@ class Gui_MainWindow(QMainWindow):
 
         self.ui.actionAbout.triggered.connect(self.onAbout)
         self.ui.actionExit.triggered.connect(self.onExit)
-        self.ui.runTradesButton.clicked.connect(self.runGemTrades)
+        # self.ui.runTradesButton.clicked.connect(self.runGemTrades)
 
     def onAbout(self):
         dlg = Gui_AboutDlg(self)
@@ -43,8 +43,8 @@ class Gui_MainWindow(QMainWindow):
     def onExit(self):
         sys.exit(0)
 
-    def runGemTrades(self):
-        self.ui.plainTextEdit.setPlainText("Hello!")
+    # def runGemTrades(self, text):
+    #     self.ui.plainTextEdit.setPlainText(self.gemOutputText)
 
 class Gui_AboutDlg(QDialog):
     """About dialog."""
@@ -55,7 +55,7 @@ class Gui_AboutDlg(QDialog):
         # Run the .setupUi() method to show the GUI
         self.ui.setupUi(self)
 
-
+# Only used for testing
 if __name__ == "__main__":
     # Create the application
     app = QApplication(sys.argv)
