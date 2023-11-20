@@ -1,4 +1,4 @@
-import csv, json, os, sys, traceback, datetime, ctypes
+import csv, json, os, sys, traceback, datetime, ctypes, time
 import requests
 from os import path
 from gui import Gui_MainWindow
@@ -684,11 +684,13 @@ def getOutput():
   return out
 
 def runTradesUi(window, app):
+  start = time.time()
   window.statusBar().showMessage("Calculating...", 10000)
   app.processEvents()
   out = getOutput()
   window.statusBar().clearMessage()
-  window.statusBar().showMessage("Done!", 10000)
+  end = time.time()
+  window.statusBar().showMessage(f"Done in {(end - start):.2f}s!", 10000)
   window.ui.gemTabText.setPlainText(out['gems'])
   window.ui.corruptTabText.setPlainText(out['corrupt'])
   window.ui.wokegemTabText.setPlainText(out['wokegem'])
