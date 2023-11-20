@@ -274,7 +274,7 @@
   </action>
   <action name="actionReload_settings_ini">
    <property name="text">
-    <string>Reload settings.ini</string>
+    <string>Reload (not implemented yet)</string>
    </property>
   </action>
   <action name="actionExit">

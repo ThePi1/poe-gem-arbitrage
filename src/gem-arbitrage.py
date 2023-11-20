@@ -1,11 +1,5 @@
-import csv
-import json
-import os
-import sys
-import traceback
+import csv, json, os, sys, traceback, datetime, ctypes
 import requests
-import datetime
-import ctypes
 from os import path
 from gui import Gui_MainWindow
 from configparser import ConfigParser
@@ -715,8 +709,8 @@ def main():
   win = Gui_MainWindow()
 
   win.ui.actionRun_Trades.triggered.connect(lambda: runTradesUi(win, app))
-
   win.show()
+  runTradesUi(win, app)
   # Run the application's main loop
   sys.exit(app.exec())
 
