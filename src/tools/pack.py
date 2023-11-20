@@ -27,13 +27,13 @@ os.mkdir(temp_dir)
 
 print("Running pyinstaller...")
 PyInstaller.__main__.run([
-    '.\gem-arbitrage.py',
+    '.\gem-arbitrage.pyw',
     '--onefile'
 ])
 print("Copying binary and license...")
 for f in os.listdir(dist_dir):
     shutil.copy(os.path.join(dist_dir, f), temp_full_path)
-shutil.copy("LICENSE", temp_full_path)
+shutil.copy("../LICENSE", temp_full_path)
 
 print("Adding data folder...")
 shutil.copytree(data_dir, os.path.join(temp_dir, data_dir))
