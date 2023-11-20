@@ -139,6 +139,8 @@ class Ui_GemArbitrageGUI(object):
         self.actionExit.setObjectName("actionExit")
         self.actionRun_Trades = QtGui.QAction(parent=GemArbitrageGUI)
         self.actionRun_Trades.setObjectName("actionRun_Trades")
+        self.actionCheck_for_Updates = QtGui.QAction(parent=GemArbitrageGUI)
+        self.actionCheck_for_Updates.setObjectName("actionCheck_for_Updates")
         self.menuSettings.addAction(self.actionReload_settings_ini)
         self.menuHelp.addAction(self.actionAbout)
         self.menuFile.addAction(self.actionRun_Trades)
@@ -171,3 +173,4 @@ class Ui_GemArbitrageGUI(object):
         self.actionReload_settings_ini.setText(_translate("GemArbitrageGUI", "Reload settings.ini"))
         self.actionExit.setText(_translate("GemArbitrageGUI", "Exit"))
         self.actionRun_Trades.setText(_translate("GemArbitrageGUI", "Run Trades"))
+        self.actionCheck_for_Updates.setText(_translate("GemArbitrageGUI", "Check for Updates"))
