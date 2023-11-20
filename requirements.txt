@@ -1,3 +1,4 @@
 requests
 p_tqdm
 pyinstaller
+pyside6
