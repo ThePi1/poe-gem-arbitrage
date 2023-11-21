@@ -1,9 +1,9 @@
 import csv, json, os, sys, traceback, datetime, ctypes, time
 import requests
 from os import path
-from gui import Gui_MainWindow
+from gui import Gui_MainWindow, GemTableModel
 from configparser import ConfigParser
-from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton
+from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton, QHeaderView
 
 # Import simulated ("multiple" method) weights
 def import_sim_json(file):
@@ -103,17 +103,29 @@ class Controller:
     print(f"Error loading settings.ini file. Please check the exception below and the corresponding entry in the settings file.\nMost likely, the format for your entry is off. Check the top of settings.ini for more info.\n\n{traceback.format_exc()}")
     exit()
 
+  def get_version_from_file():
+    with open(Controller.version_file) as local_version_file:
+      local_version = local_version_file.read()
+      return local_version
+    
+  def get_version_from_remote():
+    try:
+      latest_version = requests.get(Controller.version_url).text
+      return latest_version
+    except Exception as e:
+      print("Error fetching remote version")
+      return ''
+
   def check_version():
     try:
       print("Checking version...\n")
-      latest_version = requests.get(Controller.version_url).text
-      with open(Controller.version_file) as local_version_file:
-        local_version = local_version_file.read()
-        if local_version != latest_version:
-          print(f"Version {local_version} may be out of date!\nLatest version: {latest_version}\n\nPlease visit {Controller.project_url} to download the latest version.")
-          print("Or, if running from source, please pull the latest changes via 'git pull'")
-        else:
-          print(f"Version {local_version} is up to date.")
+      latest_version = Controller.get_version_from_remote()
+      local_version = Controller.get_version_from_file()
+      if local_version != latest_version:
+        print(f"Version {local_version} may be out of date!\nLatest version: {latest_version}\n\nPlease visit {Controller.project_url} to download the latest version.")
+        print("Or, if running from source, please pull the latest changes via 'git pull'")
+      else:
+        print(f"Version {local_version} is up to date.")
     except Exception as e:
       print(f"Error checking version: {e}")
 
@@ -442,7 +454,10 @@ class LensOperation:
       out += f"Value: {self.value}, Lens Cost: {self.lens_cost()}, Gem Cost: {self.gem_cost}, Gems Listed: Pre: {self.pre_gem.count} / Post: {self.post_gem.count}"
 
     return out
-
+  
+  def table_format(self):
+      return [f"{self.switched_profit()():.2f}", str(self.pre_gem), str(self.post_gem), self.method, self.tries, self.value, self.lens_cost(), self.gem_cost, self.pre_gem.count, self.post_gem.count]
+    
   def tabbed_output(self):
     return self.str_calc(True)
 
@@ -653,7 +668,7 @@ class Gem:
 
 def getOutput():
   Controller.reset()
-  out = { 'gems': '', 'corrupt': '', 'wokegem': '' }
+  out = { 'gems': '', 'corrupt': '', 'wokegem': '', 'table_gems':[] }
   Controller.fetch(Controller.ninja_json_filename, Controller.API_URL)
   if Controller.pull_currency_prices:
     Controller.fetch(Controller.ninja_json_currency_filename, Controller.CUR_API_URL)
@@ -673,6 +688,7 @@ def getOutput():
     out['gems'] += f"Displaying {len(profitable_trades)} trades.\n"
     for op in profitable_trades:
       out['gems'] += f"{op}\n"
+      out['table_gems'].append(op.table_format())
   if Controller.print_corrupts:
     out['corrupt'] += f"{len(Controller.all_corrupt_operations)} valid corrupt operations found.\n"
     for op in profitable_vaal:
@@ -694,6 +710,16 @@ def runTradesUi(window, app):
   window.ui.gemTabText.setPlainText(out['gems'])
   window.ui.corruptTabText.setPlainText(out['corrupt'])
   window.ui.wokegemTabText.setPlainText(out['wokegem'])
+  gem_table_data = {
+    'gemdata': out['table_gems'],
+    'columns': ['Profit', 'FromGem', 'ToGem', 'Method', 'Tries', 'Value', 'LensCost', 'GemCost', 'PreListed', 'PostListed'],
+    'rows': []
+  }
+  gem_table_model = GemTableModel(gem_table_data)
+  window.ui.gemTable.setModel(gem_table_model)
+  # header = window.ui.gemTable.horizontalHeader()
+  # header.setSectionResizeMode(QHeaderView.ResizeToContents)
+  #header.setStretchLastSection(True)
 
 def fix_win_taskbar():
   app_id = u'thepi-gemarbitrage'
@@ -711,12 +737,19 @@ def main():
   win = Gui_MainWindow()
 
   win.ui.actionRun_Trades.triggered.connect(lambda: runTradesUi(win, app))
+  #sample_data = ['394.86','Anomalous Cast when Damage Taken Support 20/20','Divergent Cast when Damage Taken Support 20/20','Single','3.5','3323.87','1701.0','240.86','24','27']
+  
   win.show()
   runTradesUi(win, app)
   # Run the application's main loop
   sys.exit(app.exec())
 
-  print(getOutput())
+  # TODO - command line version switch
+  result_text = getOutput()
+  for key in result_text:
+    if key != 'table_gems':
+      print(result_text[key])
+
   Controller.check_version()
   if Controller.pause_when_done:
     input("\nPress any key to close... ")
