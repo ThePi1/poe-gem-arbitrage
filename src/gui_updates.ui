@@ -29,7 +29,7 @@
     </sizepolicy>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Current version: C_VER&lt;/p&gt;&lt;p&gt;Latest version: L_VER&lt;/p&gt;&lt;p&gt;UPDATE_TEXT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Current version: V_CUR&lt;/p&gt;&lt;p&gt;Latest version: V_LAT&lt;/p&gt;&lt;p&gt;UPDATE_TEXT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
  </widget>

@@ -28,4 +28,4 @@ class Ui_UpdateMenu(object):
     def retranslateUi(self, UpdateMenu):
         _translate = QtCore.QCoreApplication.translate
         UpdateMenu.setWindowTitle(_translate("UpdateMenu", "About"))
-        self.label.setText(_translate("UpdateMenu", "<html><head/><body><p>Current version: C_VER</p><p>Latest version: L_VER</p><p>UPDATE_TEXT</p></body></html>"))
+        self.label.setText(_translate("UpdateMenu", "<html><head/><body><p>Current version: V_CUR</p><p>Latest version: V_LAT</p><p>UPDATE_TEXT</p></body></html>"))

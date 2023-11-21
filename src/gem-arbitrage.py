@@ -129,6 +129,15 @@ class Controller:
     except Exception as e:
       print(f"Error checking version: {e}")
 
+  def get_update_stats():
+    latest_version = Controller.get_version_from_remote()
+    local_version = Controller.get_version_from_file()
+    if local_version != latest_version:
+      update_text = "Program may be out of date!"
+    else:
+      update_text = "Up to date."
+    return (local_version, latest_version, update_text)
+
   # Fetch URL to file (with some error catching)
   def fetch(filename, url):
     do_fetch = True
@@ -735,9 +744,9 @@ def main():
   # Create the application and main window
   app = QApplication(sys.argv)
   win = Gui_MainWindow()
-
+  ver_current, ver_latest, update_text = Controller.get_update_stats()
   win.ui.actionRun_Trades.triggered.connect(lambda: runTradesUi(win, app))
-  #sample_data = ['394.86','Anomalous Cast when Damage Taken Support 20/20','Divergent Cast when Damage Taken Support 20/20','Single','3.5','3323.87','1701.0','240.86','24','27']
+  win.ui.actionUpdateCheck.triggered.connect(lambda: Gui_MainWindow.onUpdateWindow(ver_current, ver_latest, update_text))
   
   win.show()
   runTradesUi(win, app)

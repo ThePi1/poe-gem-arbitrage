@@ -246,6 +246,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="actionUpdateCheck"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -306,6 +307,11 @@
    </property>
   </action>
   <action name="actionCheck_for_Updates">
+   <property name="text">
+    <string>Check for Updates</string>
+   </property>
+  </action>
+  <action name="actionUpdateCheck">
    <property name="text">
     <string>Check for Updates</string>
    </property>

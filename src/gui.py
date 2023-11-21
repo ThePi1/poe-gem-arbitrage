@@ -1,4 +1,5 @@
 import sys
+import re
 
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
@@ -6,6 +7,7 @@ from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton
 
 from gui_about import Ui_AboutMenu
 from gui_main import Ui_GemArbitrageGUI
+from gui_updates import Ui_UpdateMenu
 
 class Gui_MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -23,12 +25,31 @@ class Gui_MainWindow(QMainWindow):
     def onExit(self):
         sys.exit(0)
 
+    def onUpdateWindow(self, ver_current, ver_latest, update_text):
+        dlg = Gui_UpdatesDlg()
+        dlg.updateVersion(ver_current, ver_latest, update_text)
+        dlg.exec()
+
 
 class Gui_AboutDlg(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.ui = Ui_AboutMenu()
         self.ui.setupUi(self)
+
+class Gui_UpdatesDlg(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.ui = Ui_UpdateMenu()
+        self.ui.setupUi(self)
+
+    def updateVersion(self, ver_current, ver_latest, update_text):
+      text =  self.ui.label.getText()
+      text = re.sub('V_CUR', ver_current, text)
+      text = re.sub('V_LAT', ver_latest, text)
+      text = re.sub('UPDATE_TEXT', update_text ,text)
+      self.ui.label.setText(QtCore.QCoreApplication.translate("UpdateMenu", text))
+
 
 class GemTableModel(QtCore.QAbstractTableModel):
     def __init__(self, data):
