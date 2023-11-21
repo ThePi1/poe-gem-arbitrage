@@ -21,7 +21,7 @@ class Ui_GemArbitrageGUI(object):
         sizePolicy.setHeightForWidth(GemArbitrageGUI.sizePolicy().hasHeightForWidth())
         GemArbitrageGUI.setSizePolicy(sizePolicy)
         GemArbitrageGUI.setMinimumSize(QtCore.QSize(0, 0))
-        GemArbitrageGUI.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        GemArbitrageGUI.setMaximumSize(QtCore.QSize(788, 591))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("data/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         GemArbitrageGUI.setWindowIcon(icon)
@@ -157,7 +157,7 @@ class Ui_GemArbitrageGUI(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(GemArbitrageGUI)
-        self.tradeTabs.setCurrentIndex(1)
+        self.tradeTabs.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(GemArbitrageGUI)
 
     def retranslateUi(self, GemArbitrageGUI):
