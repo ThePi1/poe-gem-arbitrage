@@ -12,8 +12,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>788</width>
-    <height>591</height>
+    <width>1080</width>
+    <height>720</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -30,8 +30,8 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>788</width>
-    <height>591</height>
+    <width>1080</width>
+    <height>720</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -59,8 +59,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>791</width>
-      <height>551</height>
+      <width>1081</width>
+      <height>671</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -87,51 +87,27 @@
     <property name="movable">
      <bool>false</bool>
     </property>
-    <widget class="QWidget" name="gemTab">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <attribute name="title">
-      <string>Gems</string>
-     </attribute>
-     <widget class="QPlainTextEdit" name="gemTabText">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>761</width>
-        <height>501</height>
-       </rect>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-      <property name="plainText">
-       <string/>
-      </property>
-     </widget>
-    </widget>
     <widget class="QWidget" name="gemTableTab">
      <attribute name="title">
-      <string>Gems (table)</string>
+      <string>Gems</string>
      </attribute>
      <widget class="QTableView" name="gemTable">
       <property name="geometry">
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>761</width>
-        <height>501</height>
+        <width>1051</width>
+        <height>621</height>
        </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContents</enum>
       </property>
       <property name="dragEnabled">
        <bool>true</bool>
@@ -145,6 +121,12 @@
       <property name="showGrid">
        <bool>true</bool>
       </property>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>64</number>
+      </attribute>
+      <attribute name="verticalHeaderDefaultSectionSize">
+       <number>36</number>
+      </attribute>
      </widget>
     </widget>
     <widget class="QWidget" name="corruptTab">
@@ -162,8 +144,8 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>761</width>
-        <height>501</height>
+        <width>1051</width>
+        <height>621</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -195,8 +177,8 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>761</width>
-        <height>501</height>
+        <width>1051</width>
+        <height>621</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -225,7 +207,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>788</width>
+     <width>1080</width>
      <height>22</height>
     </rect>
    </property>
@@ -264,30 +246,6 @@
     <string>About</string>
    </property>
   </action>
-  <action name="actionShow_gem_flips">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show gem flips</string>
-   </property>
-  </action>
-  <action name="actionShow_corrupt_flips">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show corrupt flips</string>
-   </property>
-  </action>
-  <action name="actionShow_awakened_gem_flips">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show awakened gem flips</string>
-   </property>
-  </action>
   <action name="actionSettingsMenu">
    <property name="enabled">
     <bool>true</bool>
@@ -304,11 +262,6 @@
   <action name="actionRun_Trades">
    <property name="text">
     <string>Reload Trades</string>
-   </property>
-  </action>
-  <action name="actionCheck_for_Updates">
-   <property name="text">
-    <string>Check for Updates</string>
    </property>
   </action>
   <action name="actionUpdateCheck">

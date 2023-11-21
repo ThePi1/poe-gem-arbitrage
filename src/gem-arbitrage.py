@@ -129,14 +129,16 @@ class Controller:
     except Exception as e:
       print(f"Error checking version: {e}")
 
+  # This may get called before everything else gets initialized
   def get_update_stats():
+    project_url = str(parser.get('filepaths', 'project_url'))
     latest_version = Controller.get_version_from_remote()
     local_version = Controller.get_version_from_file()
     if local_version != latest_version:
       update_text = "Program may be out of date!"
     else:
       update_text = "Up to date."
-    return (local_version, latest_version, update_text)
+    return (local_version, latest_version, update_text, project_url)
 
   # Fetch URL to file (with some error catching)
   def fetch(filename, url):
@@ -401,7 +403,8 @@ class Controller:
 
   # Sort through all vaal operations calculated and display them based on settings
   def get_profitable_vaal():
-    profitable_vaal = [op for op in Controller.all_corrupt_operations if op.profit > 0 and op.obeys_price_floor()]
+    profitable_vaal = [op for op in Controller.all_corrupt_operations if
+                       op.profit > 0 and op.obeys_price_floor() and op.obeys_confidence()]
     profitable_vaal.sort(key=lambda x: x.profit, reverse=not Controller.reverse_console_listings)
 
     if Controller.reverse_console_listings:
@@ -584,6 +587,15 @@ class CorruptOperation:
 
   def obeys_price_floor(self):
     return self.pre_gem.chaos_value > Controller.corrupt_operation_price_floor
+  
+  def obeys_confidence(self):
+    for gem in self.all_gems:
+      if gem.count < Controller.LOW_CONF_COUNT:
+        return False
+    if self.pre_gem.count < Controller.LOW_CONF_COUNT:
+      return False
+    
+    return True
 
 # Holds data and methods about the use of Vivid Watcher
 class WatcherOperation:
@@ -693,17 +705,22 @@ def getOutput():
   profitable_vaal = Controller.get_profitable_vaal()
   profitable_watcher = Controller.get_profitable_watcher()
 
+  vaal_disclaimer = "Please take these with a grain of salt. The data used for pricing can be low-confidence.\n\n"
+  wokegem_disclaimer = "Please take these with a grain of salt. I'm not able to verify the gem weightings independently.\nSee the readme for more info.\n\n"
+
   if Controller.print_trades:
     out['gems'] += f"Displaying {len(profitable_trades)} trades.\n"
     for op in profitable_trades:
       out['gems'] += f"{op}\n"
       out['table_gems'].append(op.table_format())
   if Controller.print_corrupts:
-    out['corrupt'] += f"{len(Controller.all_corrupt_operations)} valid corrupt operations found.\n"
+    out['corrupt'] += f"Showing {len(profitable_vaal)} corrupt operations.\n"
+    out['corrupt'] += vaal_disclaimer
     for op in profitable_vaal:
       out['corrupt'] += f"{op}\n"
   if Controller.print_watchers:
-    out['wokegem'] += f"{len(Controller.all_watcher_operations)} valid VW operations found.\n"
+    out['wokegem'] += f"Showing {len(profitable_watcher)} Vivid Watcher operations.\n"
+    out['wokegem'] += wokegem_disclaimer
     for op in profitable_watcher:
       out['wokegem'] += f"{op}\n"
   return out
@@ -716,7 +733,6 @@ def runTradesUi(window, app):
   window.statusBar().clearMessage()
   end = time.time()
   window.statusBar().showMessage(f"Done in {(end - start):.2f}s!", 10000)
-  window.ui.gemTabText.setPlainText(out['gems'])
   window.ui.corruptTabText.setPlainText(out['corrupt'])
   window.ui.wokegemTabText.setPlainText(out['wokegem'])
   gem_table_data = {
@@ -726,7 +742,13 @@ def runTradesUi(window, app):
   }
   gem_table_model = GemTableModel(gem_table_data)
   window.ui.gemTable.setModel(gem_table_model)
-  # header = window.ui.gemTable.horizontalHeader()
+
+  # Indexes of rows that need to be a little longer
+  # Currently FromGem and ToGem
+  column_width = {1:180, 2:180}
+  for k,v in column_width.items():
+    window.ui.gemTable.setColumnWidth(k, v)
+
   # header.setSectionResizeMode(QHeaderView.ResizeToContents)
   #header.setStretchLastSection(True)
 
@@ -744,9 +766,12 @@ def main():
   # Create the application and main window
   app = QApplication(sys.argv)
   win = Gui_MainWindow()
-  ver_current, ver_latest, update_text = Controller.get_update_stats()
+  ver_current, ver_latest, update_text, project_url = Controller.get_update_stats()
+
+  # Set up triggers that need specific data
   win.ui.actionRun_Trades.triggered.connect(lambda: runTradesUi(win, app))
-  win.ui.actionUpdateCheck.triggered.connect(lambda: Gui_MainWindow.onUpdateWindow(ver_current, ver_latest, update_text))
+  win.ui.actionAbout.triggered.connect(lambda: Gui_MainWindow.onAbout(win, ver_current, project_url))
+  win.ui.actionUpdateCheck.triggered.connect(lambda: Gui_MainWindow.onUpdateWindow(win, ver_current, ver_latest, project_url, update_text))
   
   win.show()
   runTradesUi(win, app)
