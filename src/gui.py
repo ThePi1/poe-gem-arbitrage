@@ -2,12 +2,23 @@ import sys
 import re
 
 from PyQt6 import QtCore, QtGui
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QRunnable
 from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton
 
 from gui_about import Ui_AboutMenu
 from gui_main import Ui_GemArbitrageGUI
 from gui_updates import Ui_UpdateMenu
+
+# Not currently using Worker class but might in the future to unblock GUI
+class Worker(QRunnable):
+  def __init__(self, fn, *args, **kwargs):
+      super(Worker, self).__init__()
+      self.fn = fn
+      self.args = args
+      self.kwargs = kwargs
+      
+  def run(self):
+    self.fn(*self.args, **self.kwargs)
 
 class Gui_MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -82,6 +93,8 @@ class GemTableModel(QtCore.QAbstractTableModel):
     def columnCount(self, index):
         # The following takes the first sub-list, and returns
         # the length (only works if all rows are an equal length)
+        if len(self._data['gemdata']) == 0:
+           return 0
         return len(self._data['gemdata'][0])
     
     def headerData(self, section, orientation, role):

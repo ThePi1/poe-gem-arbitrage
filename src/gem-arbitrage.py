@@ -57,7 +57,9 @@ class Controller:
   # If you have other gems to ignore, you can put it in the DISALLOWED_GEMS list.
   gem_types = ['Superior', 'Anomalous', 'Divergent', 'Phantasmal']
   support_gem_signifier = "Support"
-  DISALLOWED_GEMS = ['Enhance Support', 'Empower Support', 'Enlighten Support', 'Elemental Penetration Support']
+  
+  exceptional_gems = ['Enhance Support', 'Empower Support', 'Enlighten Support', 'Awakened Enhance Support', 'Awakened Empower Support', 'Awakened Enlighten Support']
+  DISALLOWED_GEMS = exceptional_gems + ['Elemental Penetration Support']
 
   # Parse the settings.ini file for the following settings
   try:
@@ -321,7 +323,6 @@ class Controller:
       WatcherOperation.get_return()
 
     for gem_name in gem_name_list:
-
       if Controller.print_watchers and WatcherOperation.is_valid_vw_by_name(gem_name):
         watcher_op = WatcherOperation()
         watcher_op.pre_gem = WatcherOperation.get_awakened_from_name(gem_name)
@@ -333,12 +334,12 @@ class Controller:
           # Corrupt Operation
           corrupt_op = CorruptOperation()
 
-          pre_gem_list = Controller.get_gems(gem_name, _type=pre_type, _lv=20, _qual=20, _isCorrupt=False)
+          pre_gem_list = Controller.get_gems(gem_name, _type=pre_type, _isCorrupt=False)
+          pre_gem = Controller.choose_gem(pre_gem_list, CorruptOperation.level_order, CorruptOperation.qual_order)
 
           if not pre_gem_list:
             pass
           else:
-            pre_gem = pre_gem_list[0]
             corrupt_op.pre_gem = pre_gem
             corrupt_op.profit = corrupt_op.get_profit()
             if corrupt_op.profit:
@@ -457,18 +458,18 @@ class LensOperation:
       out += tab_char
       out += f"{self.profit():.2f}: {self.pre_gem} -> {self.post_gem}, {self.method} @ {self.tries} tries\n"
       out += tab_char
-      out += f"Value: {self.value}, Lens Cost: {self.lens_cost()}, Gem Cost: {self.gem_cost}, Gems Listed: Pre: {self.pre_gem.count} / Post: {self.post_gem.count}"
+      out += f"Value: {self.value}, Lens Cost: {self.lens_cost()}, Gem Cost: {self.gem_cost}, Post gems listed: {self.post_gem.count}"
 
     if self.sort_method == "M2":
       out += tab_char
       out += f"{self.m2_profit():.2f}/t: {self.pre_gem} -> {self.post_gem}, {self.method} @ {self.tries} tries\n"
       out += tab_char
-      out += f"Value: {self.value}, Lens Cost: {self.lens_cost()}, Gem Cost: {self.gem_cost}, Gems Listed: Pre: {self.pre_gem.count} / Post: {self.post_gem.count}"
+      out += f"Value: {self.value}, Lens Cost: {self.lens_cost()}, Gem Cost: {self.gem_cost}, Post gems listed: {self.post_gem.count}"
 
     return out
   
   def table_format(self):
-      return [f"{self.switched_profit()():.2f}", str(self.pre_gem), str(self.post_gem), self.method, self.tries, self.value, self.lens_cost(), self.gem_cost, self.pre_gem.count, self.post_gem.count]
+      return [f"{self.switched_profit()():.2f}", str(self.pre_gem), str(self.post_gem), self.method, self.tries, self.value, self.lens_cost(), self.gem_cost, self.post_gem.count]
     
   def tabbed_output(self):
     return self.str_calc(True)
@@ -509,6 +510,8 @@ class LensOperation:
 
 # Holds data and methods for corrupt operations
 class CorruptOperation:
+  level_order = [20, 16, 17, 18, 19, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+  qual_order = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
   def __init__(self):
     self.pre_gem = None
     # Manually only include 20/20 gems to corrupt for now
@@ -519,25 +522,28 @@ class CorruptOperation:
     self.all_gems = None
 
   def __str__(self):
-    all_gems_div = [gem.chaos_value / Controller.DIV_PRICE for gem in self.all_gems]
+    if self.all_gems is None:
+      all_gems_div = []
+    else:
+      all_gems_div = [gem.chaos_value / Controller.DIV_PRICE for gem in self.all_gems]
     out = f"{self.pre_gem.short_name()} ({self.corrupt_mode}: {self.profit}/t)\n\t {self.pre_gem.chaos_value / Controller.DIV_PRICE:.2f}: "
     for num in all_gems_div:
       out += f"{num:.2f}, "
     return out[:-2]
   
   def table_format(self):
-      all_gems = [gem.chaos_value for gem in self.all_gems]
+      all_gems = [f"{gem.chaos_value:.2f}" for gem in self.all_gems]
       # Remove #3 and #1 because they are duplicates of each other
       all_gems.pop(3)
       all_gems.pop(1)
-      return [self.profit, self.pre_gem.short_name(), "single", self.pre_gem.chaos_value] + all_gems
+      return [f"{self.profit:.2f}", str(self.pre_gem), "single", f"{self.pre_gem.chaos_value:.2f}"] + all_gems
 
   # Determines the profit for corrupting a given gem
   # Really depends on good data, and poe.ninja data is shaky at best
   # Your mileage may vary
   def get_profit(self):
-    start_lv = 20
-    start_qual = 20
+    start_lv = self.pre_gem.level
+    start_qual = self.pre_gem.quality
     sum = 0
     named_gems = Controller.get_gems(self.pre_gem.name, _type=self.pre_gem.type)
     named_vaal_gems = Controller.get_gems(f"Vaal {self.pre_gem.name}")
@@ -548,19 +554,14 @@ class CorruptOperation:
       if gem.level == start_lv and gem.quality == start_qual and gem.corrupt and not gem.is_vaal():
         gems_0_8[0] = gem
         gems_0_8[1] = gem
-        continue
       if gem.level == start_lv and gem.quality > start_qual and gem.corrupt and not gem.is_vaal():
         gems_0_8[4] = gem
-        continue
       if gem.level == start_lv and gem.quality < start_qual and gem.corrupt and not gem.is_vaal():
         gems_0_8[5] = gem  # This could be better than "just go with the first one" but is ok for now
-        continue
       if gem.level == start_lv+1 and gem.quality == start_qual and gem.corrupt and not gem.is_vaal():
         gems_0_8[6] = gem
-        continue
       if gem.level == start_lv-1 and gem.quality == start_qual and gem.corrupt and not gem.is_vaal():
         gems_0_8[7] = gem
-        continue
 
     if not has_vaal:
       gems_0_8[2] = gems_0_8[0]
@@ -619,7 +620,7 @@ class WatcherOperation:
     return f"{self.pre_gem.name}: {self.get_profit():.2f}/try (Base value: {self.pre_gem.chaos_value:.2f})"
 
   def table_format(self):
-    return [f"{self.get_profit():.2f}", self.pre_gem.name, self.pre_gem.chaos_value]
+    return [f"{self.get_profit():.2f}", self.pre_gem.name, f"{self.pre_gem.chaos_value:.2f}"]
 
   def get_return():
     debug = False
@@ -747,7 +748,7 @@ def runTradesUi(window, app):
   out = getOutput()
   gem_table_data = {
     'gemdata': out['table_gems'],
-    'columns': ['Profit', 'FromGem', 'ToGem', 'Method', 'Tries', 'Value', 'LensCost', 'GemCost', 'PreListed', 'PostListed'],
+    'columns': ['Profit', 'Source Gem', 'Target Gem', 'Method', 'Tries', 'Value', 'Lens Cost', 'Gem Cost', 'Target Listings'],
     'rows': []
   }
   corrupt_table_data = {
@@ -768,7 +769,7 @@ def runTradesUi(window, app):
   window.ui.wokegemTable.setModel(wokegem_table_model)
 
   # Set the width of column headings that need to be a bit longer
-  gem_column_width = { 1:180, 2:180 }
+  gem_column_width = { 1:180, 2:180, 8:100 }
   corrupt_column_width = { 1:250 }
   wokegem_column_width = { 1:250 }
   for k,v in gem_column_width.items():
