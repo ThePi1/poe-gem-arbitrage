@@ -758,35 +758,39 @@ def fix_win_taskbar():
 
 # Main method
 def main():
-  # Use this on Windows to add the icon back to the taskbar
-  # No idea how this works on Mac/Linux for now, haha
-  if sys.platform == 'win32':
-    fix_win_taskbar()
+  gui = not '--nogui' in sys.argv
+  if gui:
+    # Use this on Windows to add the icon back to the taskbar
+    # No idea how this works on Mac/Linux for now, haha
+    if sys.platform == 'win32':
+      fix_win_taskbar()
 
-  # Create the application and main window
-  app = QApplication(sys.argv)
-  win = Gui_MainWindow()
-  ver_current, ver_latest, update_text, project_url = Controller.get_update_stats()
+    # Create the application and main window
+    app = QApplication(sys.argv)
+    print(sys.argv)
+    win = Gui_MainWindow()
+    ver_current, ver_latest, update_text, project_url = Controller.get_update_stats()
 
-  # Set up triggers that need specific data
-  win.ui.actionRun_Trades.triggered.connect(lambda: runTradesUi(win, app))
-  win.ui.actionAbout.triggered.connect(lambda: Gui_MainWindow.onAbout(win, ver_current, project_url))
-  win.ui.actionUpdateCheck.triggered.connect(lambda: Gui_MainWindow.onUpdateWindow(win, ver_current, ver_latest, project_url, update_text))
-  
-  win.show()
-  runTradesUi(win, app)
-  # Run the application's main loop
-  sys.exit(app.exec())
+    # Set up triggers that need specific data
+    win.ui.actionRun_Trades.triggered.connect(lambda: runTradesUi(win, app))
+    win.ui.actionAbout.triggered.connect(lambda: Gui_MainWindow.onAbout(win, ver_current, project_url))
+    win.ui.actionUpdateCheck.triggered.connect(lambda: Gui_MainWindow.onUpdateWindow(win, ver_current, ver_latest, project_url, update_text))
+    
+    win.show()
+    runTradesUi(win, app)
+    
+    # Run the application's main loop
+    sys.exit(app.exec())
+  else:
+    # TODO - command line version switch
+    result_text = getOutput()
+    for key in result_text:
+      if key != 'table_gems':
+        print(result_text[key])
 
-  # TODO - command line version switch
-  result_text = getOutput()
-  for key in result_text:
-    if key != 'table_gems':
-      print(result_text[key])
-
-  Controller.check_version()
-  if Controller.pause_when_done:
-    input("\nPress any key to close... ")
+    Controller.check_version()
+    if Controller.pause_when_done:
+      input("\nPress any key to close... ")
 
 
 if __name__ == '__main__':
