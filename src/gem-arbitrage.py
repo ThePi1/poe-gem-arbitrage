@@ -77,7 +77,6 @@ class Controller:
     vivid_watcher_price               = int(parser.get('market_settings', 'vivid_watcher_price'))
     yellow_beast_price                = int(parser.get('market_settings', 'yellow_beast_price'))
     max_data_staleness                = int(parser.get('general', 'max_data_staleness'))
-    pause_when_done                   = is_true(parser.get('general', 'pause_when_done'))
     DISABLE_OUT                       = not is_true(parser.get('general', 'debug_messages'))
     print_trades                      = is_true(parser.get('general', 'print_trades'))
     print_corrupts                    = is_true(parser.get('general', 'print_corrupts'))
@@ -821,9 +820,6 @@ def main():
         print(result_text[key])
 
     Controller.check_version()
-    if Controller.pause_when_done:
-      input("\nPress any key to close... ")
-
 
 if __name__ == '__main__':
   main()
