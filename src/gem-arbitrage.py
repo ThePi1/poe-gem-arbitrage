@@ -816,7 +816,7 @@ def main():
     result_text = getOutput()
     
     for key in result_text:
-      if key != 'table_gems':
+      if key not in ['table_gems', 'table_corrupts', 'table_wokegem']:
         print(result_text[key])
 
     Controller.check_version()
