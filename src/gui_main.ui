@@ -139,7 +139,7 @@
      <attribute name="title">
       <string>Corrupts</string>
      </attribute>
-     <widget class="QPlainTextEdit" name="corruptTabText">
+     <widget class="QTableView" name="corruptTable">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -148,18 +148,33 @@
         <height>621</height>
        </rect>
       </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
       </property>
-      <property name="readOnly">
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContents</enum>
+      </property>
+      <property name="dragEnabled">
        <bool>true</bool>
       </property>
-      <property name="plainText">
-       <string/>
+      <property name="verticalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
       </property>
+      <property name="horizontalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
+      </property>
+      <property name="showGrid">
+       <bool>true</bool>
+      </property>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>64</number>
+      </attribute>
+      <attribute name="verticalHeaderDefaultSectionSize">
+       <number>36</number>
+      </attribute>
      </widget>
     </widget>
     <widget class="QWidget" name="wokegemTab">
@@ -170,9 +185,9 @@
       </sizepolicy>
      </property>
      <attribute name="title">
-      <string>Awakened Gems</string>
+      <string>Vivid Watcher</string>
      </attribute>
-     <widget class="QPlainTextEdit" name="wokegemTabText">
+     <widget class="QTableView" name="wokegemTable">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -181,18 +196,33 @@
         <height>621</height>
        </rect>
       </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
       </property>
-      <property name="readOnly">
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContents</enum>
+      </property>
+      <property name="dragEnabled">
        <bool>true</bool>
       </property>
-      <property name="plainText">
-       <string/>
+      <property name="verticalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
       </property>
+      <property name="horizontalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
+      </property>
+      <property name="showGrid">
+       <bool>true</bool>
+      </property>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>64</number>
+      </attribute>
+      <attribute name="verticalHeaderDefaultSectionSize">
+       <number>36</number>
+      </attribute>
      </widget>
     </widget>
    </widget>

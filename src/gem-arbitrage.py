@@ -524,7 +524,13 @@ class CorruptOperation:
     for num in all_gems_div:
       out += f"{num:.2f}, "
     return out[:-2]
-
+  
+  def table_format(self):
+      all_gems = [gem.chaos_value for gem in self.all_gems]
+      # Remove #3 and #1 because they are duplicates of each other
+      all_gems.pop(3)
+      all_gems.pop(1)
+      return [self.profit, self.pre_gem.short_name(), "single", self.pre_gem.chaos_value] + all_gems
 
   # Determines the profit for corrupting a given gem
   # Really depends on good data, and poe.ninja data is shaky at best
@@ -612,6 +618,9 @@ class WatcherOperation:
   def __str__(self):
     return f"{self.pre_gem.name}: {self.get_profit():.2f}/try (Base value: {self.pre_gem.chaos_value:.2f})"
 
+  def table_format(self):
+    return [f"{self.get_profit():.2f}", self.pre_gem.name, self.pre_gem.chaos_value]
+
   def get_return():
     debug = False
     working_return_value = 0
@@ -689,7 +698,7 @@ class Gem:
 
 def getOutput():
   Controller.reset()
-  out = { 'gems': '', 'corrupt': '', 'wokegem': '', 'table_gems':[] }
+  out = { 'gems': '', 'corrupt': '', 'wokegem': '', 'table_gems': [], 'table_corrupts': [], 'table_wokegem': [] }
   Controller.fetch(Controller.ninja_json_filename, Controller.API_URL)
   if Controller.pull_currency_prices:
     Controller.fetch(Controller.ninja_json_currency_filename, Controller.CUR_API_URL)
@@ -705,8 +714,9 @@ def getOutput():
   profitable_vaal = Controller.get_profitable_vaal()
   profitable_watcher = Controller.get_profitable_watcher()
 
-  vaal_disclaimer = "Please take these with a grain of salt. The data used for pricing can be low-confidence.\n\n"
-  wokegem_disclaimer = "Please take these with a grain of salt. I'm not able to verify the gem weightings independently.\nSee the readme for more info.\n\n"
+  # Might add these disclaimers back in to the table format some day
+  # vaal_disclaimer = "Please take these with a grain of salt. The data used for pricing can be low-confidence.\n\n"
+  # wokegem_disclaimer = "Please take these with a grain of salt. I'm not able to verify the gem weightings independently.\nSee the readme for more info.\n\n"
 
   if Controller.print_trades:
     out['gems'] += f"Displaying {len(profitable_trades)} trades.\n"
@@ -715,42 +725,63 @@ def getOutput():
       out['table_gems'].append(op.table_format())
   if Controller.print_corrupts:
     out['corrupt'] += f"Showing {len(profitable_vaal)} corrupt operations.\n"
-    out['corrupt'] += vaal_disclaimer
+    # out['corrupt'] += vaal_disclaimer
     for op in profitable_vaal:
       out['corrupt'] += f"{op}\n"
+      out['table_corrupts'].append(op.table_format())
   if Controller.print_watchers:
     out['wokegem'] += f"Showing {len(profitable_watcher)} Vivid Watcher operations.\n"
-    out['wokegem'] += wokegem_disclaimer
+    # out['wokegem'] += wokegem_disclaimer
     for op in profitable_watcher:
       out['wokegem'] += f"{op}\n"
+      out['table_wokegem'].append(op.table_format())
   return out
 
 def runTradesUi(window, app):
+  # Set status message to start and process the change so we can see it
   start = time.time()
   window.statusBar().showMessage("Calculating...", 10000)
   app.processEvents()
+  
+  # Calculate the trades, set up table models, and plug in data
   out = getOutput()
-  window.statusBar().clearMessage()
-  end = time.time()
-  window.statusBar().showMessage(f"Done in {(end - start):.2f}s!", 10000)
-  window.ui.corruptTabText.setPlainText(out['corrupt'])
-  window.ui.wokegemTabText.setPlainText(out['wokegem'])
   gem_table_data = {
     'gemdata': out['table_gems'],
     'columns': ['Profit', 'FromGem', 'ToGem', 'Method', 'Tries', 'Value', 'LensCost', 'GemCost', 'PreListed', 'PostListed'],
     'rows': []
   }
+  corrupt_table_data = {
+    'gemdata': out['table_corrupts'],
+    'columns': ['Profit', 'GemName', 'Method', 'PreCost', 'Brick', 'Vaal', '+Qual', '-Qual', '+Level', '-Level'],
+    'rows': []
+  }
+  wokegem_table_data = {
+    'gemdata': out['table_wokegem'],
+    'columns': ['Profit', 'GemName', 'BaseValue'],
+    'rows': []
+  }
   gem_table_model = GemTableModel(gem_table_data)
+  corrupt_table_model = GemTableModel(corrupt_table_data)
+  wokegem_table_model = GemTableModel(wokegem_table_data)
   window.ui.gemTable.setModel(gem_table_model)
+  window.ui.corruptTable.setModel(corrupt_table_model)
+  window.ui.wokegemTable.setModel(wokegem_table_model)
 
-  # Indexes of rows that need to be a little longer
-  # Currently FromGem and ToGem
-  column_width = {1:180, 2:180}
-  for k,v in column_width.items():
+  # Set the width of column headings that need to be a bit longer
+  gem_column_width = { 1:180, 2:180 }
+  corrupt_column_width = { 1:250 }
+  wokegem_column_width = { 1:250 }
+  for k,v in gem_column_width.items():
     window.ui.gemTable.setColumnWidth(k, v)
+  for k,v in corrupt_column_width.items():
+    window.ui.corruptTable.setColumnWidth(k,v)
+  for k,v in wokegem_column_width.items():
+    window.ui.wokegemTable.setColumnWidth(k, v)
 
-  # header.setSectionResizeMode(QHeaderView.ResizeToContents)
-  #header.setStretchLastSection(True)
+  # Done! Set status message
+  window.statusBar().clearMessage()
+  end = time.time()
+  window.statusBar().showMessage(f"Done in {(end - start):.2f}s!", 10000)
 
 def fix_win_taskbar():
   app_id = u'thepi-gemarbitrage'
@@ -758,8 +789,8 @@ def fix_win_taskbar():
 
 # Main method
 def main():
-  gui = not '--nogui' in sys.argv
-  if gui:
+  use_gui = not '--nogui' in sys.argv
+  if use_gui:
     # Use this on Windows to add the icon back to the taskbar
     # No idea how this works on Mac/Linux for now, haha
     if sys.platform == 'win32':
@@ -767,7 +798,6 @@ def main():
 
     # Create the application and main window
     app = QApplication(sys.argv)
-    print(sys.argv)
     win = Gui_MainWindow()
     ver_current, ver_latest, update_text, project_url = Controller.get_update_stats()
 
@@ -778,12 +808,13 @@ def main():
     
     win.show()
     runTradesUi(win, app)
-    
+
     # Run the application's main loop
     sys.exit(app.exec())
   else:
     # TODO - command line version switch
     result_text = getOutput()
+    
     for key in result_text:
       if key != 'table_gems':
         print(result_text[key])
