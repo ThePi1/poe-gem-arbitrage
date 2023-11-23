@@ -15,7 +15,7 @@ temp_dir = "temp"
 dist_dir = "dist"
 build_dir = "build"
 data_dir = "data"
-out_filename = "poe-gem-arbitrage-1.3.2"
+out_filename = "poe-gem-arbitrage-1.4.0-alpha"
 
 
 temp_full_path = os.path.abspath(temp_dir)
@@ -28,12 +28,14 @@ os.mkdir(temp_dir)
 print("Running pyinstaller...")
 PyInstaller.__main__.run([
     '.\gem-arbitrage.py',
-    '--onefile'
+    '--onefile',
+    '--icon=data/icon.ico',
+    '--hide-console=hide-early'
 ])
 print("Copying binary and license...")
 for f in os.listdir(dist_dir):
     shutil.copy(os.path.join(dist_dir, f), temp_full_path)
-shutil.copy("LICENSE", temp_full_path)
+shutil.copy("../LICENSE", temp_full_path)
 
 print("Adding data folder...")
 shutil.copytree(data_dir, os.path.join(temp_dir, data_dir))

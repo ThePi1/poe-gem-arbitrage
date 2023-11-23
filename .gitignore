@@ -1,3 +1,4 @@
-data/skillgem_response.json
-data/currency_response.json
+src/data/skillgem_response.json
+src/data/currency_response.json
 .venv
+src/__pycache__

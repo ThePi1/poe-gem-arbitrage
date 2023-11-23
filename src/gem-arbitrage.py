@@ -1,11 +1,10 @@
-import csv
-import json
-import os
-from configparser import ConfigParser
-import traceback
+import csv, json, os, sys, traceback, datetime, ctypes, time
 import requests
-import datetime
 from os import path
+from pathlib import Path
+from gui import Gui_MainWindow, GemTableModel
+from configparser import ConfigParser
+from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton, QHeaderView
 
 # Import simulated ("multiple" method) weights
 def import_sim_json(file):
@@ -28,6 +27,7 @@ def is_true(val):
 
 # Set up config parser and read in the settings file
 parser = ConfigParser()
+base_path = Path(__file__).parent
 parser.read('data/settings.ini')
 
 # The controller holds most of the data and methods used to calculate trades.
@@ -59,7 +59,9 @@ class Controller:
   # If you have other gems to ignore, you can put it in the DISALLOWED_GEMS list.
   gem_types = ['Superior', 'Anomalous', 'Divergent', 'Phantasmal']
   support_gem_signifier = "Support"
-  DISALLOWED_GEMS = ['Enhance Support', 'Empower Support', 'Enlighten Support', 'Elemental Penetration Support']
+  
+  exceptional_gems = ['Enhance Support', 'Empower Support', 'Enlighten Support', 'Awakened Enhance Support', 'Awakened Empower Support', 'Awakened Enlighten Support']
+  DISALLOWED_GEMS = exceptional_gems + ['Elemental Penetration Support']
 
   # Parse the settings.ini file for the following settings
   try:
@@ -77,7 +79,6 @@ class Controller:
     vivid_watcher_price               = int(parser.get('market_settings', 'vivid_watcher_price'))
     yellow_beast_price                = int(parser.get('market_settings', 'yellow_beast_price'))
     max_data_staleness                = int(parser.get('general', 'max_data_staleness'))
-    pause_when_done                   = is_true(parser.get('general', 'pause_when_done'))
     DISABLE_OUT                       = not is_true(parser.get('general', 'debug_messages'))
     print_trades                      = is_true(parser.get('general', 'print_trades'))
     print_corrupts                    = is_true(parser.get('general', 'print_corrupts'))
@@ -105,19 +106,42 @@ class Controller:
     print(f"Error loading settings.ini file. Please check the exception below and the corresponding entry in the settings file.\nMost likely, the format for your entry is off. Check the top of settings.ini for more info.\n\n{traceback.format_exc()}")
     exit()
 
+  def get_version_from_file():
+    with open(Controller.version_file) as local_version_file:
+      local_version = local_version_file.read()
+      return local_version
+    
+  def get_version_from_remote():
+    try:
+      latest_version = requests.get(Controller.version_url).text
+      return latest_version
+    except Exception as e:
+      print("Error fetching remote version")
+      return ''
+
   def check_version():
     try:
       print("Checking version...\n")
-      latest_version = requests.get(Controller.version_url).text
-      with open(Controller.version_file) as local_version_file:
-        local_version = local_version_file.read()
-        if local_version != latest_version:
-          print(f"Version {local_version} may be out of date!\nLatest version: {latest_version}\n\nPlease visit {Controller.project_url} to download the latest version.")
-          print("Or, if running from source, please pull the latest changes via 'git pull'")
-        else:
-          print(f"Version {local_version} is up to date.")
+      latest_version = Controller.get_version_from_remote()
+      local_version = Controller.get_version_from_file()
+      if local_version != latest_version:
+        print(f"Version {local_version} may be out of date!\nLatest version: {latest_version}\n\nPlease visit {Controller.project_url} to download the latest version.")
+        print("Or, if running from source, please pull the latest changes via 'git pull'")
+      else:
+        print(f"Version {local_version} is up to date.")
     except Exception as e:
       print(f"Error checking version: {e}")
+
+  # This may get called before everything else gets initialized
+  def get_update_stats():
+    project_url = str(parser.get('filepaths', 'project_url'))
+    latest_version = Controller.get_version_from_remote()
+    local_version = Controller.get_version_from_file()
+    if local_version != latest_version:
+      update_text = "Program may be out of date!"
+    else:
+      update_text = "Up to date."
+    return (local_version, latest_version, update_text, project_url)
 
   # Fetch URL to file (with some error catching)
   def fetch(filename, url):
@@ -300,7 +324,6 @@ class Controller:
       WatcherOperation.get_return()
 
     for gem_name in gem_name_list:
-
       if Controller.print_watchers and WatcherOperation.is_valid_vw_by_name(gem_name):
         watcher_op = WatcherOperation()
         watcher_op.pre_gem = WatcherOperation.get_awakened_from_name(gem_name)
@@ -312,12 +335,12 @@ class Controller:
           # Corrupt Operation
           corrupt_op = CorruptOperation()
 
-          pre_gem_list = Controller.get_gems(gem_name, _type=pre_type, _lv=20, _qual=20, _isCorrupt=False)
+          pre_gem_list = Controller.get_gems(gem_name, _type=pre_type, _isCorrupt=False)
+          pre_gem = Controller.choose_gem(pre_gem_list, CorruptOperation.level_order, CorruptOperation.qual_order)
 
           if not pre_gem_list:
             pass
           else:
-            pre_gem = pre_gem_list[0]
             corrupt_op.pre_gem = pre_gem
             corrupt_op.profit = corrupt_op.get_profit()
             if corrupt_op.profit:
@@ -382,7 +405,8 @@ class Controller:
 
   # Sort through all vaal operations calculated and display them based on settings
   def get_profitable_vaal():
-    profitable_vaal = [op for op in Controller.all_corrupt_operations if op.profit > 0 and op.obeys_price_floor()]
+    profitable_vaal = [op for op in Controller.all_corrupt_operations if
+                       op.profit > 0 and op.obeys_price_floor() and op.obeys_confidence()]
     profitable_vaal.sort(key=lambda x: x.profit, reverse=not Controller.reverse_console_listings)
 
     if Controller.reverse_console_listings:
@@ -400,7 +424,16 @@ class Controller:
     else:
       return profitable_watcher[:Controller.MAX_RESULTS]
 
-
+  # Reset local variables
+  def reset():
+    Controller.lens_weights = {}
+    Controller.vivid_watcher_weights = {}
+    Controller.all_lens_operations = []
+    Controller.all_corrupt_operations = []
+    Controller.all_watcher_operations = []
+    Controller.results = []
+    Controller.gems = []
+    Controller.gems_dict = {}
 
 # Holds data and methods for trades (lens operations)
 class LensOperation:
@@ -426,16 +459,19 @@ class LensOperation:
       out += tab_char
       out += f"{self.profit():.2f}: {self.pre_gem} -> {self.post_gem}, {self.method} @ {self.tries} tries\n"
       out += tab_char
-      out += f"Value: {self.value}, Lens Cost: {self.lens_cost()}, Gem Cost: {self.gem_cost}, Gems Listed: Pre: {self.pre_gem.count} / Post: {self.post_gem.count}"
+      out += f"Value: {self.value}, Lens Cost: {self.lens_cost()}, Gem Cost: {self.gem_cost}, Post gems listed: {self.post_gem.count}"
 
     if self.sort_method == "M2":
       out += tab_char
       out += f"{self.m2_profit():.2f}/t: {self.pre_gem} -> {self.post_gem}, {self.method} @ {self.tries} tries\n"
       out += tab_char
-      out += f"Value: {self.value}, Lens Cost: {self.lens_cost()}, Gem Cost: {self.gem_cost}, Gems Listed: Pre: {self.pre_gem.count} / Post: {self.post_gem.count}"
+      out += f"Value: {self.value}, Lens Cost: {self.lens_cost()}, Gem Cost: {self.gem_cost}, Post gems listed: {self.post_gem.count}"
 
     return out
-
+  
+  def table_format(self):
+      return [f"{self.switched_profit()():.2f}", str(self.pre_gem), str(self.post_gem), self.method, self.tries, self.value, self.lens_cost(), self.gem_cost, self.post_gem.count]
+    
   def tabbed_output(self):
     return self.str_calc(True)
 
@@ -475,6 +511,8 @@ class LensOperation:
 
 # Holds data and methods for corrupt operations
 class CorruptOperation:
+  level_order = [20, 16, 17, 18, 19, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+  qual_order = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
   def __init__(self):
     self.pre_gem = None
     # Manually only include 20/20 gems to corrupt for now
@@ -485,19 +523,28 @@ class CorruptOperation:
     self.all_gems = None
 
   def __str__(self):
-    all_gems_div = [gem.chaos_value / Controller.DIV_PRICE for gem in self.all_gems]
+    if self.all_gems is None:
+      all_gems_div = []
+    else:
+      all_gems_div = [gem.chaos_value / Controller.DIV_PRICE for gem in self.all_gems]
     out = f"{self.pre_gem.short_name()} ({self.corrupt_mode}: {self.profit}/t)\n\t {self.pre_gem.chaos_value / Controller.DIV_PRICE:.2f}: "
     for num in all_gems_div:
       out += f"{num:.2f}, "
     return out[:-2]
-
+  
+  def table_format(self):
+      all_gems = [f"{gem.chaos_value:.2f}" for gem in self.all_gems]
+      # Remove #3 and #1 because they are duplicates of each other
+      all_gems.pop(3)
+      all_gems.pop(1)
+      return [f"{self.profit:.2f}", str(self.pre_gem), "single", f"{self.pre_gem.chaos_value:.2f}"] + all_gems
 
   # Determines the profit for corrupting a given gem
   # Really depends on good data, and poe.ninja data is shaky at best
   # Your mileage may vary
   def get_profit(self):
-    start_lv = 20
-    start_qual = 20
+    start_lv = self.pre_gem.level
+    start_qual = self.pre_gem.quality
     sum = 0
     named_gems = Controller.get_gems(self.pre_gem.name, _type=self.pre_gem.type)
     named_vaal_gems = Controller.get_gems(f"Vaal {self.pre_gem.name}")
@@ -508,19 +555,14 @@ class CorruptOperation:
       if gem.level == start_lv and gem.quality == start_qual and gem.corrupt and not gem.is_vaal():
         gems_0_8[0] = gem
         gems_0_8[1] = gem
-        continue
       if gem.level == start_lv and gem.quality > start_qual and gem.corrupt and not gem.is_vaal():
         gems_0_8[4] = gem
-        continue
       if gem.level == start_lv and gem.quality < start_qual and gem.corrupt and not gem.is_vaal():
         gems_0_8[5] = gem  # This could be better than "just go with the first one" but is ok for now
-        continue
       if gem.level == start_lv+1 and gem.quality == start_qual and gem.corrupt and not gem.is_vaal():
         gems_0_8[6] = gem
-        continue
       if gem.level == start_lv-1 and gem.quality == start_qual and gem.corrupt and not gem.is_vaal():
         gems_0_8[7] = gem
-        continue
 
     if not has_vaal:
       gems_0_8[2] = gems_0_8[0]
@@ -553,6 +595,15 @@ class CorruptOperation:
 
   def obeys_price_floor(self):
     return self.pre_gem.chaos_value > Controller.corrupt_operation_price_floor
+  
+  def obeys_confidence(self):
+    for gem in self.all_gems:
+      if gem.count < Controller.LOW_CONF_COUNT:
+        return False
+    if self.pre_gem.count < Controller.LOW_CONF_COUNT:
+      return False
+    
+    return True
 
 # Holds data and methods about the use of Vivid Watcher
 class WatcherOperation:
@@ -568,6 +619,9 @@ class WatcherOperation:
 
   def __str__(self):
     return f"{self.pre_gem.name}: {self.get_profit():.2f}/try (Base value: {self.pre_gem.chaos_value:.2f})"
+
+  def table_format(self):
+    return [f"{self.get_profit():.2f}", self.pre_gem.name, f"{self.pre_gem.chaos_value:.2f}"]
 
   def get_return():
     debug = False
@@ -644,9 +698,9 @@ class Gem:
   def is_awakened(self):
     return f"Awakened" in self.name
 
-
-# Main method
-def main():
+def getOutput():
+  Controller.reset()
+  out = { 'gems': '', 'corrupt': '', 'wokegem': '', 'table_gems': [], 'table_corrupts': [], 'table_wokegem': [] }
   Controller.fetch(Controller.ninja_json_filename, Controller.API_URL)
   if Controller.pull_currency_prices:
     Controller.fetch(Controller.ninja_json_currency_filename, Controller.CUR_API_URL)
@@ -662,23 +716,112 @@ def main():
   profitable_vaal = Controller.get_profitable_vaal()
   profitable_watcher = Controller.get_profitable_watcher()
 
-  if Controller.print_trades:
-    print(f"Displaying {len(profitable_trades)} trades.\n")
-    for op in profitable_trades:
-      print(f"{op}\n")
-  if Controller.print_corrupts:
-    print(f"{len(Controller.all_corrupt_operations)} valid corrupt operations found.")
-    for op in profitable_vaal:
-      print(f"{op}\n")
-  if Controller.print_watchers:
-    print(f"{len(Controller.all_watcher_operations)} valid VW operations found.")
-    for op in profitable_watcher:
-      print(f"{op}\n")
-  
-  Controller.check_version()
-  if Controller.pause_when_done:
-    input("\nPress any key to close... ")
+  # Might add these disclaimers back in to the table format some day
+  # vaal_disclaimer = "Please take these with a grain of salt. The data used for pricing can be low-confidence.\n\n"
+  # wokegem_disclaimer = "Please take these with a grain of salt. I'm not able to verify the gem weightings independently.\nSee the readme for more info.\n\n"
 
+  if Controller.print_trades:
+    out['gems'] += f"Displaying {len(profitable_trades)} trades.\n"
+    for op in profitable_trades:
+      out['gems'] += f"{op}\n"
+      out['table_gems'].append(op.table_format())
+  if Controller.print_corrupts:
+    out['corrupt'] += f"Showing {len(profitable_vaal)} corrupt operations.\n"
+    # out['corrupt'] += vaal_disclaimer
+    for op in profitable_vaal:
+      out['corrupt'] += f"{op}\n"
+      out['table_corrupts'].append(op.table_format())
+  if Controller.print_watchers:
+    out['wokegem'] += f"Showing {len(profitable_watcher)} Vivid Watcher operations.\n"
+    # out['wokegem'] += wokegem_disclaimer
+    for op in profitable_watcher:
+      out['wokegem'] += f"{op}\n"
+      out['table_wokegem'].append(op.table_format())
+  return out
+
+def runTradesUi(window, app):
+  # Set status message to start and process the change so we can see it
+  start = time.time()
+  window.statusBar().showMessage("Calculating...", 10000)
+  app.processEvents()
+  
+  # Calculate the trades, set up table models, and plug in data
+  out = getOutput()
+  gem_table_data = {
+    'gemdata': out['table_gems'],
+    'columns': ['Profit', 'Source Gem', 'Target Gem', 'Method', 'Tries', 'Value', 'Lens Cost', 'Gem Cost', 'Target Listings'],
+    'rows': []
+  }
+  corrupt_table_data = {
+    'gemdata': out['table_corrupts'],
+    'columns': ['Profit', 'GemName', 'Method', 'PreCost', 'Brick', 'Vaal', '+Qual', '-Qual', '+Level', '-Level'],
+    'rows': []
+  }
+  wokegem_table_data = {
+    'gemdata': out['table_wokegem'],
+    'columns': ['Profit', 'GemName', 'BaseValue'],
+    'rows': []
+  }
+  gem_table_model = GemTableModel(gem_table_data)
+  corrupt_table_model = GemTableModel(corrupt_table_data)
+  wokegem_table_model = GemTableModel(wokegem_table_data)
+  window.ui.gemTable.setModel(gem_table_model)
+  window.ui.corruptTable.setModel(corrupt_table_model)
+  window.ui.wokegemTable.setModel(wokegem_table_model)
+
+  # Set the width of column headings that need to be a bit longer
+  gem_column_width = { 1:180, 2:180, 8:100 }
+  corrupt_column_width = { 1:250 }
+  wokegem_column_width = { 1:250 }
+  for k,v in gem_column_width.items():
+    window.ui.gemTable.setColumnWidth(k, v)
+  for k,v in corrupt_column_width.items():
+    window.ui.corruptTable.setColumnWidth(k,v)
+  for k,v in wokegem_column_width.items():
+    window.ui.wokegemTable.setColumnWidth(k, v)
+
+  # Done! Set status message
+  window.statusBar().clearMessage()
+  end = time.time()
+  window.statusBar().showMessage(f"Done in {(end - start):.2f}s!", 10000)
+
+def fix_win_taskbar():
+  app_id = u'thepi-gemarbitrage'
+  ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
+
+# Main method
+def main():
+  use_gui = not '--nogui' in sys.argv
+  if use_gui:
+    # Use this on Windows to add the icon back to the taskbar
+    # No idea how this works on Mac/Linux for now, haha
+    if sys.platform == 'win32':
+      fix_win_taskbar()
+
+    # Create the application and main window
+    app = QApplication(sys.argv)
+    win = Gui_MainWindow()
+    ver_current, ver_latest, update_text, project_url = Controller.get_update_stats()
+
+    # Set up triggers that need specific data
+    win.ui.actionRun_Trades.triggered.connect(lambda: runTradesUi(win, app))
+    win.ui.actionAbout.triggered.connect(lambda: Gui_MainWindow.onAbout(win, ver_current, project_url))
+    win.ui.actionUpdateCheck.triggered.connect(lambda: Gui_MainWindow.onUpdateWindow(win, ver_current, ver_latest, project_url, update_text))
+    
+    win.show()
+    runTradesUi(win, app)
+
+    # Run the application's main loop
+    sys.exit(app.exec())
+  else:
+    # TODO - command line version switch
+    result_text = getOutput()
+    
+    for key in result_text:
+      if key not in ['table_gems', 'table_corrupts', 'table_wokegem']:
+        print(result_text[key])
+
+    Controller.check_version()
 
 if __name__ == '__main__':
   main()
