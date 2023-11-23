@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
-    <height>120</height>
+    <width>400</width>
+    <height>135</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>300</width>
-    <height>120</height>
+    <width>0</width>
+    <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>300</width>
-    <height>120</height>
+    <width>400</width>
+    <height>135</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -34,8 +34,8 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>280</width>
-     <height>110</height>
+     <width>381</width>
+     <height>131</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -51,7 +51,7 @@
     </size>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Made with ♥ by ThePi&lt;/p&gt;&lt;p&gt;V_CUR&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;SRC_URL&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;SRC_URL&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Made with ♥ by ThePi&lt;/p&gt;&lt;p&gt;V_CUR&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;SRC_URL&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;SRC_URL&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Please open an issue on GitHub for issues / suggestions!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="scaledContents">
     <bool>false</bool>
