@@ -1,6 +1,7 @@
 import csv, json, os, sys, traceback, datetime, ctypes, time
 import requests
 from os import path
+from pathlib import Path
 from gui import Gui_MainWindow, GemTableModel
 from configparser import ConfigParser
 from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton, QHeaderView
@@ -26,13 +27,14 @@ def is_true(val):
 
 # Set up config parser and read in the settings file
 parser = ConfigParser()
-parser.read('data/settings.ini')
+base_path = Path(__file__).parent
+parser.read(os.path.join(base_path, 'data/settings.ini'))
 
 # The controller holds most of the data and methods used to calculate trades.
 class Controller:
   # Initialize data structures
   simulated_weight_filename = str(parser.get('filepaths', 'simulated_weight_filename'))
-  simulated_weights = import_sim_json(simulated_weight_filename)
+  simulated_weights = import_sim_json(os.path.join(base_path, simulated_weight_filename))
   lens_weights = {}
   vivid_watcher_weights = {}
   all_lens_operations = []
@@ -105,7 +107,7 @@ class Controller:
     exit()
 
   def get_version_from_file():
-    with open(Controller.version_file) as local_version_file:
+    with open(os.path.join(base_path, Controller.version_file)) as local_version_file:
       local_version = local_version_file.read()
       return local_version
     
@@ -234,7 +236,7 @@ class Controller:
 
 # Import currency prices from file
   def import_currency_prices():
-    with open(Controller.ninja_json_currency_filename) as curfile:
+    with open(os.path.join(base_path, Controller.ninja_json_currency_filename)) as curfile:
       raw = json.load(curfile)
       for line_item in raw['lines']:
         if line_item['currencyTypeName'] == 'Prime Regrading Lens':
@@ -699,16 +701,16 @@ class Gem:
 def getOutput():
   Controller.reset()
   out = { 'gems': '', 'corrupt': '', 'wokegem': '', 'table_gems': [], 'table_corrupts': [], 'table_wokegem': [] }
-  Controller.fetch(Controller.ninja_json_filename, Controller.API_URL)
+  Controller.fetch(os.path.join(base_path, Controller.ninja_json_filename), Controller.API_URL)
   if Controller.pull_currency_prices:
-    Controller.fetch(Controller.ninja_json_currency_filename, Controller.CUR_API_URL)
+    Controller.fetch(os.path.join(base_path, Controller.ninja_json_currency_filename), Controller.CUR_API_URL)
     Controller.import_currency_prices()
   elif not Controller.DISABLE_OUT:
       print(f'Using manual currency prices:\nPrime: {Controller.prime_lens_price}c\nSecondary: {Controller.secondary_lens_price}c\nDivine: {Controller.DIV_PRICE}c\n')
 
-  Controller.load_gems_from_json(Controller.ninja_json_filename)
-  Controller.import_gem_weights(Controller.gem_file)
-  Controller.import_vivid_watcher_weights(Controller.vivid_watcher_file)
+  Controller.load_gems_from_json(os.path.join(base_path, Controller.ninja_json_filename))
+  Controller.import_gem_weights(os.path.join(base_path, Controller.gem_file))
+  Controller.import_vivid_watcher_weights(os.path.join(base_path, Controller.vivid_watcher_file))
   Controller.calc()
   profitable_trades = Controller.get_profitable_trades()
   profitable_vaal = Controller.get_profitable_vaal()
