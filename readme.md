@@ -63,6 +63,21 @@ In addition -- there are some values in the `Controller` class that probably won
 
 (Settings menu in the GUI is a planned feature)
 
+## GUI
+The GUI is currently created using PyQt6 and laid out using the Qt Designer tool.
+
+You can get this by `pip install pyqt6-tools` and then launch by `pyqt6-tools designer`.
+
+`.\tools\update_gui_py.ps1` is ran from the `src` folder to compile the `.ui` files into their `.py` counterparts.
+If you're not developing on Windows feel free to skip this (or make an analogue to it), and just run the commands yourself as needed:
+
+`pyuic6 -o gui_main.py gui_main.ui`
+
+`pyuic6 -o gui_about.py gui_about.ui`
+
+`pyuic6 -o gui_updates.py gui_updates.ui`
+
+
 ## Quirks and Issues
 #### Corrupts for Exceptional gems
 Currently (due to what more or less amounts to a bug/enhancement that I'm tracking) this tool isn't tracking the corrupt profitability of Empower / Enlighten / Enhance (and their Awakened counterparts).
