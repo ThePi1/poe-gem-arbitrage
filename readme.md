@@ -28,6 +28,8 @@ The following will need to be run in your OS's shell, in the source folder -- Po
 
 The tool will run according to the `settings.ini` file and spit out profitable trades for you to make.
 
+If you want, you can run the script / executable with the `--nogui` flag to only output a text version with the same data as the GUI.
+
 ## Gems
 Each line here represents the use of regrading lenses on a gem, with a particular method. The profit listed is, by default, per operation (aka, regrading lens use). This can be changed in the settings.
 
