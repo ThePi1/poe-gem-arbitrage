@@ -23,8 +23,10 @@ The following will need to be run in your OS's shell, in the source folder -- Po
     Then:
 
     pip install -r requirements.txt
-    python .\src\gem-arbitrage.py
+    cd src
+    python .\gem-arbitrage.py
 
+(Make sure you run it from the `src` folder. It's a little picky with file paths...)
 
 The tool will run according to the `settings.ini` file and spit out profitable trades for you to make.
 
