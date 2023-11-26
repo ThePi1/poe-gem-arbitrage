@@ -79,12 +79,6 @@ class GemTableModel(QtCore.QAbstractTableModel):
         # .row() indexes into the outer list,
         # .column() indexes into the sub-list
         return self._data['gemdata'][index.row()][index.column()]
-          
-      if role == Qt.ItemDataRole.BackgroundRole:
-        if (index.row() & 1):
-          return QtGui.QColor("#ffffff")
-        else:
-          return QtGui.QColor("#e3e3e3")
 
     def rowCount(self, index):
         # The length of the outer list.

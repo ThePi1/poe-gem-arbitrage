@@ -112,6 +112,9 @@
       <property name="dragEnabled">
        <bool>true</bool>
       </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
       <property name="verticalScrollMode">
        <enum>QAbstractItemView::ScrollPerPixel</enum>
       </property>
@@ -160,6 +163,9 @@
       <property name="dragEnabled">
        <bool>true</bool>
       </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
       <property name="verticalScrollMode">
        <enum>QAbstractItemView::ScrollPerPixel</enum>
       </property>
@@ -206,6 +212,9 @@
        <enum>QAbstractScrollArea::AdjustToContents</enum>
       </property>
       <property name="dragEnabled">
+       <bool>true</bool>
+      </property>
+      <property name="alternatingRowColors">
        <bool>true</bool>
       </property>
       <property name="verticalScrollMode">
