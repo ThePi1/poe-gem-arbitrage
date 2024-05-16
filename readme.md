@@ -32,12 +32,8 @@ The tool will run according to the `settings.ini` file and spit out profitable t
 
 If you want, you can run the script / executable with the `--nogui` flag to only output a text version with the same data as the GUI.
 
-## Gems
-Each line here represents the use of regrading lenses on a gem, with a particular method. The profit listed is, by default, per operation (aka, regrading lens use). This can be changed in the settings.
-
-'Target Listings' refers to the number of listings of the target gem that poe.ninja has estimated to exist at any given time. You can think of this as a confidence number, higher is better.
-
-The rest of the fields should be reasonably straightforward. Prices in chaos.
+## Font
+TODO - Fill in this section about lab.
 
 ## Corrupts
 Each line here represents the corruption of a gem for profit. As of right now, it only supports single corrupts.
