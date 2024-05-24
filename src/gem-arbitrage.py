@@ -37,6 +37,7 @@ class Controller:
   # simulated_weights = import_sim_json(simulated_weight_filename)
   lens_weights = {}
   vivid_watcher_weights = {}
+  gem_attributes = {}
 
   # Font operation 'numbering' is reserved as follows:
 
@@ -52,6 +53,7 @@ class Controller:
   # 10 - Sacrifice a Gem for Treasure Keys
   # 11 - Transform a Corrupted Transfigured Skill Gem to be a random Corrupted Transfigured Skill Gem of the same colour
   # 12 - Transform a Corrupted Skill Gem to be a random Corrupted Skill Gem of the same colour
+  
   # all_lens_operations = []
 
   all_font1_operations = []
@@ -64,13 +66,6 @@ class Controller:
 
   include_methods_in_results = []
   include_types_in_results = []
-
-  # It looks a bit arcane, but these determine the priority of levels and qualities when determining the price of a gem.
-  # The goal here is to ask, "for any gem X, what is the most common and reasonable level and quality for that gem, so that we can price it?"
-  # Gems are matched level first, then quality.
-  # See the readme for more information.
-  gem_level_match_order = [20, 16, 17, 18, 19, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-  gem_qual_match_order = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
 
   # I highly doubt different alt qualities will appear, but if they do, it can be updated here.
   # There are also some disallowed gems that don't have alternate qualities.
@@ -86,6 +81,7 @@ class Controller:
     ninja_json_currency_filename      = str(parser.get('filepaths', "ninja_json_currency_filename"))
     # gem_file                          = str(parser.get('filepaths', "gem_file"))
     vivid_watcher_file                = str(parser.get('filepaths', "vivid_watcher_file"))
+    gem_attr_file                     = str(parser.get('filepaths', "gem_attr_file"))
     version_file                      = str(parser.get('filepaths', "version_file"))
     API_URL                           = str(parser.get('filepaths', 'api_url'))
     CUR_API_URL                       = str(parser.get('filepaths', 'cur_api_url'))
@@ -197,11 +193,18 @@ class Controller:
     for line_item in raw['lines']:
       new_gem = Gem()
 
+
       # Set name and type
+      name_parts = line_item['name'].rsplit("of", 1)
       if 'tradeFilter' in line_item:
-        name_parts = line_item['name'].rsplit("of", 1)
         new_gem.type = name_parts[1].strip(' ')
-      new_gem.name = line_item['name']
+        new_gem.name = name_parts[0].strip(' ')
+      else:
+        new_gem.name = line_item["name"]
+
+      # Set attribute, if applicable
+      if new_gem.name in Controller.gem_attributes:
+        new_gem.attr = Controller.gem_attributes[new_gem.name]
 
       # Set quality
       if 'gemQuality' in line_item:
@@ -234,6 +237,17 @@ class Controller:
       Controller.gems_dict[new_gem.name].append(new_gem)
 
     print(f"Loaded {len(Controller.gems)} gems from poe.ninja.")
+
+  def import_gem_attr(_attr_file):
+    with open(_attr_file) as attr_file:
+        reader = csv.reader(attr_file, delimiter=',', quotechar='|')
+        line_count = 0
+        for row in reader:
+          line_count += 1
+          if line_count == 1: continue # Skip first line in CSV
+          if row[0] not in Controller.gem_attributes:
+            Controller.gem_attributes[row[0]] = row[1] 
+        print(f"Loaded {line_count} gem attribute mappings.")
 
   # Import gem weight csv
   # def import_gem_weights(_gem_file):
@@ -280,6 +294,14 @@ class Controller:
         if not exclude:_gems.append(gem)
     return _gems
 
+  # Returns all valid types for a gem name
+  def get_types_by_name(_name):
+    valid_gems = Controller.get_gems(_name)
+    types = []
+    for gem in valid_gems:
+      if gem.type not in types:
+        types.append(gem.type)
+    return types
 
   # Internal method for retrieving all gem names
   def get_gem_names():
@@ -340,6 +362,22 @@ class Controller:
     if Controller.print_watchers:
       WatcherOperation.get_return()
 
+    # If applicable, generate the 3 attribute font1 operations
+    for attr in ['str', 'dex', 'int']:
+      font1_op = Font1Operation()
+      font1_op.attribute = attr
+      Controller.all_font1_operations.append(font1_op)
+      types = []
+      for gem_name in gem_name_list:
+        gems_type = Controller.get_types_by_name(gem_name)
+        for gem in gems_type:
+          if gem.type not in types:
+            types.append((gem.name, gem.type))
+      
+      for gem_name_type in types:
+        candidates = Controller.get_gems(gem_name_type[0], _type=gem_name_type[1])
+        pre_gem = Controller.choose_gem(candidates)
+
     for gem_name in gem_name_list:
       # If applicable, generate VW operation for this gem
       if Controller.print_watchers and WatcherOperation.is_valid_vw_by_name(gem_name):
@@ -365,6 +403,9 @@ class Controller:
       
       
       # TODO - Add font1 and font2 calcs here
+
+    # Done!
+    if not Controller.DISABLE_OUT: print("Done!\n")
 
 
       # for pre_type in Controller.gem_types:
@@ -443,11 +484,14 @@ class Controller:
   #   return []
 
   def get_profitable_font1():
-    return []
+    profitable_font1 = [op for op in Controller.all_font1_operations]
+    profitable_font1.sort(key = lambda x: x.profit, reverse=not Controller.reverse_console_listings)
+    return profitable_font1
   
   def get_profitable_font2():
-    return []
-
+    profitable_font2 = [op for op in Controller.all_font2_operations]
+    profitable_font2.sort(key = lambda x: x.profit, reverse=not Controller.reverse_console_listings)
+    return profitable_font2
 
   # Sort through all vaal operations calculated and display them based on settings
   def get_profitable_vaal():
@@ -481,6 +525,20 @@ class Controller:
     Controller.results = []
     Controller.gems = []
     Controller.gems_dict = {}
+
+class Font1Operation:
+  def __init__(self):
+    self.post_gem_list = []
+    self.attribute = None
+    self.profit = 0
+    self.gem_order = [20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0]
+    self.qual_order = [20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0]
+
+  def table_format(self):
+      return [self.profit, self.attribute, len(self.post_gem_list)]
+  
+  def __str__(self):
+    return f"Profit: {self.profit}, Attribute: {self.attribute}, # possible gems: {len(self.post_gem_list)}"
 
 # Holds data and methods for trades (lens operations)
 # class LensOperation:
@@ -579,12 +637,13 @@ class CorruptOperation:
       out += f"{num:.2f}, "
     return out[:-2]
   
+  
   def table_format(self):
       all_gems = [f"{gem.chaos_value:.2f}" for gem in self.all_gems]
       # Remove #3 and #1 because they are duplicates of each other
       all_gems.pop(3)
       all_gems.pop(1)
-      return [f"{self.profit:.2f}", str(self.pre_gem), "single", f"{self.pre_gem.chaos_value:.2f}"] + all_gems
+      return [f"{self.profit:.2f}", str(self.pre_gem), "Vaal Orb", f"{self.pre_gem.chaos_value:.2f}"] + all_gems
 
   # Determines the profit for corrupting a given gem
   # Really depends on good data, and poe.ninja data is shaky at best
@@ -720,15 +779,17 @@ class Gem:
     self.listing_count = -1
     self.weight = -1
     self.corrupt = None
+    # Only skill gems need attributes, for font1 operations, so not all gems will get this
+    self.attr = None
 
   def __repr__(self):
     return self.__str__()
 
   def __str__(self):
     if self.has_type():
-      return f"{self.name} of {self.type} {self.level}/{self.quality}"
+      return f"{self.name} of {self.type}, {self.level}/{self.quality}"
     else:
-      return f"{self.name} {self.level}/{self.quality}"
+      return f"{self.name}, {self.level}/{self.quality}"
 
   def is_support(self):
     return "Support" in self.name
@@ -764,6 +825,8 @@ def getOutput():
   elif not Controller.DISABLE_OUT:
       print(f'Using manual currency prices:\nDivine: {Controller.DIV_PRICE}c\n')
 
+  # Need to load gem attributes before we can load gems
+  Controller.import_gem_attr(Controller.gem_attr_file)
   Controller.load_gems_from_json(Controller.ninja_json_filename)
   # Controller.import_gem_weights(Controller.gem_file)
   Controller.import_vivid_watcher_weights(Controller.vivid_watcher_file)
@@ -821,12 +884,12 @@ def runTradesUi(window, app):
   out = getOutput()
   font1_table_data = {
     'gemdata': out['table_font1'],
-    'columns': ['Profit', 'Source Gem', 'Target Gem', 'Method', 'Tries', 'Value', 'Lens Cost', 'Gem Cost', 'Target Listings'],
+    'columns': ['Profit', 'Attribute', "NumPossibleGems"],
     'rows': []
   }
   font2_table_data = {
     'gemdata': out['table_font2'],
-    'columns': ['Profit', 'Source Gem', 'Target Gem', 'Method', 'Tries', 'Value', 'Lens Cost', 'Gem Cost', 'Target Listings'],
+    'columns': ['Profit', 'GemName', 'BaseValue'],
     'rows': []
   }
   # gem_table_data = {
@@ -836,12 +899,12 @@ def runTradesUi(window, app):
   # }
   corrupt_table_data = {
     'gemdata': out['table_corrupts'],
-    'columns': ['Profit', 'GemName', 'Method', 'PreCost', 'Brick', 'Vaal', '+Qual', '-Qual', '+Level', '-Level'],
+    'columns': ['Profit', 'Gem Name', 'Method', 'PreCost', 'Brick', 'Vaal', '+Qual', '-Qual', '+Level', '-Level'],
     'rows': []
   }
   wokegem_table_data = {
     'gemdata': out['table_wokegem'],
-    'columns': ['Profit', 'GemName', 'BaseValue'],
+    'columns': ['Profit', 'Gem Name', 'BaseValue'],
     'rows': []
   }
   # gem_table_model = GemTableModel(gem_table_data)
@@ -904,7 +967,7 @@ def main():
     result_text = getOutput()
     
     for key in result_text:
-      if key not in ['table_gems', 'table_corrupts', 'table_wokegem']:
+      if key not in ['table_font1', 'table_font2', 'table_corrupts', 'table_wokegem']:
         print(result_text[key])
 
     Controller.check_version()
