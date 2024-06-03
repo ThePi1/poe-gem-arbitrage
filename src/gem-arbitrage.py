@@ -33,8 +33,6 @@ parser.read('data/settings.ini')
 # The controller holds most of the data and methods used to calculate trades.
 class Controller:
   # Initialize data structures
-  # simulated_weight_filename = str(parser.get('filepaths', 'simulated_weight_filename'))
-  # simulated_weights = import_sim_json(simulated_weight_filename)
   lens_weights = {}
   vivid_watcher_weights = {}
   gem_attributes = {"int": [], "dex": [], "str": []}
@@ -55,7 +53,6 @@ class Controller:
   # 11 - Transform a Corrupted Transfigured Skill Gem to be a random Corrupted Transfigured Skill Gem of the same colour
   # 12 - Transform a Corrupted Skill Gem to be a random Corrupted Skill Gem of the same colour
   
-  # all_lens_operations = []
 
   all_font1_operations = []
   all_font2_operations = []
@@ -80,7 +77,6 @@ class Controller:
   try:
     ninja_json_filename               = str(parser.get('filepaths', "ninja_json_filename"))
     ninja_json_currency_filename      = str(parser.get('filepaths', "ninja_json_currency_filename"))
-    # gem_file                          = str(parser.get('filepaths', "gem_file"))
     vivid_watcher_file                = str(parser.get('filepaths', "vivid_watcher_file"))
     gem_attr_file                     = str(parser.get('filepaths', "gem_attr_file"))
     version_file                      = str(parser.get('filepaths', "version_file"))
@@ -88,8 +84,6 @@ class Controller:
     CUR_API_URL                       = str(parser.get('filepaths', 'cur_api_url'))
     version_url                       = str(parser.get('filepaths', 'version_url'))
     project_url                       = str(parser.get('filepaths', 'project_url'))
-    # prime_lens_price                  = int(parser.get('market_settings', 'prime_lens_price'))
-    # secondary_lens_price              = int(parser.get('market_settings', 'secondary_lens_price'))
     vivid_watcher_price               = int(parser.get('market_settings', 'vivid_watcher_price'))
     yellow_beast_price                = int(parser.get('market_settings', 'yellow_beast_price'))
     max_data_staleness                = int(parser.get('general', 'max_data_staleness'))
@@ -102,7 +96,6 @@ class Controller:
     MAX_RESULTS                       = int(parser.get('general', 'max_results'))
     DIV_PRICE                         = int(parser.get('market_settings', 'divine_price'))
     reverse_console_listings          = is_true(parser.get('general', 'reverse_console_listings'))
-    gem_operation_price_floor         = int(parser.get('general', "gem_operation_price_floor"))
     corrupt_operation_price_floor     = int(parser.get('general', "corrupt_operation_price_floor"))
     LOW_CONF_COUNT                    = int(parser.get('general', "low_confidence_count"))
     LENS_SORT_METHOD                  = str(parser.get('general', 'lens_sort_method')).upper()
@@ -193,7 +186,6 @@ class Controller:
       raw = json.load(s_json)
     for line_item in raw['lines']:
       new_gem = Gem()
-
 
       # Set name and type
       name_parts = line_item['name'].rsplit("of", 1)
@@ -383,12 +375,12 @@ class Controller:
     if not Controller.DISABLE_OUT: print("Done!\n")
 
   def get_profitable_font1():
-    profitable_font1 = [op for op in Controller.all_font1_operations]
+    profitable_font1 = [op for op in Controller.all_font1_operations if op.profit > 0]
     profitable_font1.sort(key = lambda x: x.profit, reverse=not Controller.reverse_console_listings)
     return profitable_font1
   
   def get_profitable_font2():
-    profitable_font2 = [op for op in Controller.all_font2_operations]
+    profitable_font2 = [op for op in Controller.all_font2_operations if op.profit > 0]
     profitable_font2.sort(key = lambda x: x.profit, reverse=not Controller.reverse_console_listings)
     return profitable_font2
 
@@ -672,10 +664,8 @@ def getOutput():
   # Need to load gem attributes before we can load gems
   Controller.import_gem_attr(Controller.gem_attr_file)
   Controller.load_gems_from_json(Controller.ninja_json_filename)
-  # Controller.import_gem_weights(Controller.gem_file)
   Controller.import_vivid_watcher_weights(Controller.vivid_watcher_file)
   Controller.calc()
-  # profitable_trades = Controller.get_profitable_trades()
   profitable_font1 = Controller.get_profitable_font1()
   profitable_font2 = Controller.get_profitable_font2()
   profitable_vaal = Controller.get_profitable_vaal()
@@ -684,12 +674,6 @@ def getOutput():
   # Might add these disclaimers back in to the table format some day
   # vaal_disclaimer = "Please take these with a grain of salt. The data used for pricing can be low-confidence.\n\n"
   # wokegem_disclaimer = "Please take these with a grain of salt. I'm not able to verify the gem weightings independently.\nSee the readme for more info.\n\n"
-
-  # if Controller.print_trades:
-  #   out['gems'] += f"Displaying {len(profitable_trades)} trades.\n"
-  #   for op in profitable_trades:
-  #     out['gems'] += f"{op}\n"
-  #     out['table_gems'].append(op.table_format())
 
   if Controller.print_font1:
     out['font1'] += f"Showing {len(profitable_font1)} font (by color) operations.\n"
@@ -736,11 +720,6 @@ def runTradesUi(window, app):
     'columns': ['Profit', 'GemName', 'BaseValue'],
     'rows': []
   }
-  # gem_table_data = {
-  #   'gemdata': out['table_gems'],
-  #   'columns': ['Profit', 'Source Gem', 'Target Gem', 'Method', 'Tries', 'Value', 'Lens Cost', 'Gem Cost', 'Target Listings'],
-  #   'rows': []
-  # }
   corrupt_table_data = {
     'gemdata': out['table_corrupts'],
     'columns': ['Profit', 'Gem Name', 'Method', 'PreCost', 'Brick', 'Vaal', '+Qual', '-Qual', '+Level', '-Level'],
@@ -751,25 +730,21 @@ def runTradesUi(window, app):
     'columns': ['Profit', 'Gem Name', 'BaseValue'],
     'rows': []
   }
-  # gem_table_model = GemTableModel(gem_table_data)
   font1_table_model = GemTableModel(font1_table_data)
   font2_table_model = GemTableModel(font2_table_data)
   corrupt_table_model = GemTableModel(corrupt_table_data)
   wokegem_table_model = GemTableModel(wokegem_table_data)
-  # window.ui.gemTable.setModel(gem_table_model)
   window.ui.font1Table.setModel(font1_table_model)
   window.ui.font2Table.setModel(font2_table_model)
   window.ui.corruptTable.setModel(corrupt_table_model)
   window.ui.wokegemTable.setModel(wokegem_table_model)
 
   # Set the width of column headings that need to be a bit longer
-  # gem_column_width = { 1:180, 2:180, 8:100 }
   corrupt_column_width = { 1:250 }
   wokegem_column_width = { 1:250 }
   font1_column_width   = { 2:120 }
   font2_column_width   = { 1:200 }
-  # for k,v in gem_column_width.items():
-  #   window.ui.gemTable.setColumnWidth(k, v)
+
   for k,v in corrupt_column_width.items():
     window.ui.corruptTable.setColumnWidth(k,v)
   for k,v in wokegem_column_width.items():
