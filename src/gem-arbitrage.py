@@ -62,12 +62,8 @@ class Controller:
   gems = []
   gems_dict = {}
 
-  include_methods_in_results = []
-  include_types_in_results = []
-
-  # I highly doubt different alt qualities will appear, but if they do, it can be updated here.
-  # There are also some disallowed gems that don't have alternate qualities.
-  # If you have other gems to ignore, you can put it in the DISALLOWED_GEMS list.
+  # There are some disallowed gems that don't have alternate qualities.
+  # If you have other gems to ignore, you can put it in the DISALLOWED_GEMS additional list.
   support_gem_signifier = "Support"
   
   exceptional_gems = ['Enhance Support', 'Empower Support', 'Enlighten Support', 'Awakened Enhance Support', 'Awakened Empower Support', 'Awakened Enlighten Support']
@@ -98,17 +94,6 @@ class Controller:
     reverse_console_listings          = is_true(parser.get('general', 'reverse_console_listings'))
     corrupt_operation_price_floor     = int(parser.get('general', "corrupt_operation_price_floor"))
     LOW_CONF_COUNT                    = int(parser.get('general', "low_confidence_count"))
-    LENS_SORT_METHOD                  = str(parser.get('general', 'lens_sort_method')).upper()
-    display_single_lens_trades        = is_true(parser.get('general', 'display_single_lens_trades'))
-    display_repeat_lens_trades        = is_true(parser.get('general', 'display_repeat_lens_trades'))
-    display_primary_lens_trades       = is_true(parser.get('general', 'display_primary_lens_trades'))
-    display_secondary_lens_trades     = is_true(parser.get('general', 'display_secondary_lens_trades'))
-
-    # Set up lists from settings
-    if display_single_lens_trades: include_methods_in_results.append("single")
-    if display_repeat_lens_trades: include_methods_in_results.append("repeat")
-    if display_primary_lens_trades: include_types_in_results.append("Primary")
-    if display_secondary_lens_trades: include_types_in_results.append("Secondary")
 
   except Exception as e:
     print(f"Error loading settings.ini file. Please check the exception below and the corresponding entry in the settings file.\nMost likely, the format for your entry is off. Check the top of settings.ini for more info.\n\n{traceback.format_exc()}")
