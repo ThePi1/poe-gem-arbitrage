@@ -252,19 +252,6 @@ class Controller:
         print(f"Loaded {line_count} gem attribute mappings.")
 
   # Import gem weight csv
-  # def import_gem_weights(_gem_file):
-  #   with open(_gem_file) as gemsfile:
-  #     reader = csv.reader(gemsfile, delimiter=',', quotechar='|')
-  #     line_count = 0
-  #     for row in reader:
-  #       line_count += 1
-  #       if line_count == 1: continue # Skip first line in CSV
-  #       if row[0] not in Controller.lens_weights:
-  #         Controller.lens_weights[row[0]] = {} 
-  #       Controller.lens_weights[row[0]][row[1]] = int(row[2])
-  #     print(f"Loaded {line_count} gem weights.")
-
-  # Import gem weight csv
   def import_vivid_watcher_weights(_file):
     with open(_file) as w_file:
       reader = csv.reader(w_file, delimiter=',', quotechar='|')
@@ -322,39 +309,6 @@ class Controller:
     else:
       return _gem_type_list[0]
 
-
-  # Returns how many tries on average it will take to get from one gem to another
-  # def get_tries(_pre_gem, _post_gem, _method):
-  #   if _method == "single":
-  #     name = _pre_gem.name
-  #     pre_type = _pre_gem.type
-  #     post_type = _post_gem.type
-  #     if not (name in Controller.lens_weights and pre_type in Controller.lens_weights[name] and post_type in
-  #             Controller.lens_weights[name]):
-  #       if not Controller.DISABLE_OUT: print(f"Warning: {_pre_gem.name} not found in CSV weights")
-  #       return -1
-  #     pre_weight = Controller.lens_weights[name][pre_type]
-  #     post_weight = Controller.lens_weights[name][post_type]
-  #     weight_sum = sum(Controller.lens_weights[name].values())
-  #     chance = post_weight / (weight_sum - pre_weight)
-  #     return 1 / chance
-
-  #   elif _method == "repeat":
-  #     name = _pre_gem.name
-  #     pre_type = _pre_gem.type
-  #     post_type = _post_gem.type
-  #     tup = (name, pre_type, post_type)
-  #     if tup in Controller.simulated_weights:
-  #       return Controller.simulated_weights[tup]
-  #     else:
-  #       return -1
-  #   else:
-  #     print(f"Error: Invalid method {_method}")
-  #     return -1
-
-
-
-
   # Main method for doing trade calculations
   def calc():
     gem_name_list = Controller.get_gem_names()
@@ -378,7 +332,6 @@ class Controller:
               types.append((gem_name, t))
       
       num_types = len(types)
-      print(f"Using {num_types} types for font1.")
       for gem_name_type in types:
         candidates = Controller.get_gems(gem_name_type[0], _type=gem_name_type[1])
         post_gem = Controller.choose_gem(candidates, Font1Operation.gem_order, Font1Operation.qual_order)
@@ -400,7 +353,7 @@ class Controller:
       for op in gemtypes:
         sum_profit += op.pre_gem.chaos_value
       for op in gemtypes:
-        op.profit = (sum_profit / 3) - op.pre_gem.chaos_value
+        op.profit = (sum_profit / len(gemtypes)) - op.pre_gem.chaos_value
 
 
     for gem_name in gem_name_list:
@@ -425,88 +378,9 @@ class Controller:
           corrupt_op.profit = corrupt_op.get_profit()
           if corrupt_op.profit:
             Controller.all_corrupt_operations.append(corrupt_op)
-      
-      
-      # TODO - Add font1 and font2 calcs here
 
     # Done!
     if not Controller.DISABLE_OUT: print("Done!\n")
-
-
-      # for pre_type in Controller.gem_types:
-      #   if Controller.print_corrupts:
-      #     # Corrupt Operation
-      #     corrupt_op = CorruptOperation()
-
-      #     pre_gem_list = Controller.get_gems(gem_name, _type=pre_type, _isCorrupt=False)
-      #     pre_gem = Controller.choose_gem(pre_gem_list, CorruptOperation.level_order, CorruptOperation.qual_order)
-
-      #     if not pre_gem_list:
-      #       pass
-      #     else:
-      #       corrupt_op.pre_gem = pre_gem
-      #       corrupt_op.profit = corrupt_op.get_profit()
-      #       if corrupt_op.profit:
-      #         Controller.all_corrupt_operations.append(corrupt_op)
-
-      #   for post_type in [g for g in Controller.gem_types if g != pre_type]:
-      #     pre_gems = Controller.get_gems(gem_name, _type=pre_type)
-      #     post_gems = Controller.get_gems(gem_name, _type=post_type)
-
-      #     if None in pre_gems or None in post_gems:
-      #       continue
-
-      #     pre_quals = []
-      #     pre_levels = []
-      #     post_quals = []
-      #     post_levels = []
-
-      #     for gem in pre_gems:
-      #       if gem.quality not in pre_quals: pre_quals.append(gem.quality)
-      #       if gem.level not in pre_levels: pre_levels.append(gem.level)
-      #     for gem in post_gems:
-      #       if gem.quality not in post_quals: post_quals.append(gem.quality)
-      #       if gem.level not in post_levels: post_levels.append(gem.level)
-
-      #     filtered_pre_level_match_order = [i for i in Controller.gem_level_match_order if i in pre_levels]
-      #     filtered_pre_qual_match_order = [i for i in Controller.gem_qual_match_order if i in pre_quals]
-      #     filtered_post_level_match_order = [i for i in Controller.gem_level_match_order if i in post_levels]
-      #     filtered_post_qual_match_order = [i for i in Controller.gem_qual_match_order if i in post_quals]
-
-      #     pre_gem = Controller.choose_gem(pre_gems, filtered_pre_level_match_order, filtered_pre_qual_match_order)
-      #     post_gem = Controller.choose_gem(post_gems, filtered_post_level_match_order, filtered_post_qual_match_order)
-
-      #     if None in [pre_gem, post_gem]:
-      #       continue
-
-      #     for method in Controller.include_methods_in_results:
-      #       swap = LensOperation()
-      #       swap.pre_gem = pre_gem
-      #       swap.post_gem = post_gem
-      #       swap.method = method
-      #       swap.sort_method = Controller.LENS_SORT_METHOD
-      #       swap.gem_cost = pre_gem.chaos_value
-      #       swap.tries = Controller.get_tries(pre_gem, post_gem, method)
-      #       swap.value = post_gem.chaos_value
-      #       Controller.all_lens_operations.append(swap)
-
-
-  # Sort through all trades calculated and display them based on settings
-  # def get_profitable_trades():
-  #   profitable_trades = [op for op in Controller.all_lens_operations if
-  #                        op.switched_profit()() > Controller.gem_operation_price_floor and op.tries > 0 and
-  #                        op.obeys_confidence() and op.obeys_vaal() and op.obeys_disallow() and
-  #                        (op.lens_type() in Controller.include_types_in_results)]
-
-  #   profitable_trades.sort(key=lambda x: x.switched_profit()(), reverse=not Controller.reverse_console_listings)
-    
-  #   if Controller.reverse_console_listings:
-  #     return profitable_trades[len(profitable_trades) - min(Controller.MAX_RESULTS, len(profitable_trades)):]
-  #   else:
-  #     return profitable_trades[:Controller.MAX_RESULTS]
-
-  # def get_profitable_trades():
-  #   return []
 
   def get_profitable_font1():
     profitable_font1 = [op for op in Controller.all_font1_operations]
@@ -575,84 +449,10 @@ class Font2Operation:
     self.profit = 0
 
   def table_format(self):
-      return [f"{self.profit:.2f}", str(self.pre_gem), self.pre_gem.chaos_value]
+      return [f"{self.profit:.2f}", str(self.pre_gem), f"{self.pre_gem.chaos_value:.2f}"]
   
   def __str__(self):
-    return f"Profit: {self.profit:.2f}, Pre Gem: {self.pre_gem.__str__()}, Base Value: {self.pre_gem.chaos_value}"
-
-# Holds data and methods for trades (lens operations)
-# class LensOperation:
-#   def __init__(self):
-#     self.pre_gem = None
-#     self.post_gem = None
-#     # "single" or "repeat". 'single' is buy gem, hit, discard if not. 'repeat' is buy, hit until succeed.
-#     self.method = None
-#     # "M1" or "M2". M1 is $/gem hit. M2 is $/lens used.
-#     self.sort_method = None
-#     self.tries = None
-#     self.gem_cost = None
-#     self.value = None
-
-#   def __str__(self):
-#     return self.str_calc(False)
-
-#   # Defines how trades are displayed in the console
-#   def str_calc(self, use_tab):
-#     out = ""
-#     tab_char = "\t" if use_tab else ""
-#     if self.sort_method == "M1":
-#       out += tab_char
-#       out += f"{self.profit():.2f}: {self.pre_gem} -> {self.post_gem}, {self.method} @ {self.tries} tries\n"
-#       out += tab_char
-#       out += f"Value: {self.value}, Lens Cost: {self.lens_cost()}, Gem Cost: {self.gem_cost}, Post gems listed: {self.post_gem.count}"
-
-#     if self.sort_method == "M2":
-#       out += tab_char
-#       out += f"{self.m2_profit():.2f}/t: {self.pre_gem} -> {self.post_gem}, {self.method} @ {self.tries} tries\n"
-#       out += tab_char
-#       out += f"Value: {self.value}, Lens Cost: {self.lens_cost()}, Gem Cost: {self.gem_cost}, Post gems listed: {self.post_gem.count}"
-
-#     return out
-  
-#   def table_format(self):
-#       return [f"{self.switched_profit()():.2f}", str(self.pre_gem), str(self.post_gem), self.method, self.tries, self.value, self.lens_cost(), self.gem_cost, self.post_gem.count]
-    
-#   def tabbed_output(self):
-#     return self.str_calc(True)
-
-#   def profit(self):
-#     return self.value - self.lens_cost() - self.gem_cost
-
-#   def m2_profit(self):
-#     return self.profit() / self.tries
-
-#   def switched_profit(self):
-#     if self.sort_method == "M1":
-#       return self.profit
-#     else:
-#       return self.m2_profit
-
-#   def lens_cost(self):
-#     if self.pre_gem.is_support():
-#       return self.tries * Controller.secondary_lens_price
-#     else:
-#       return self.tries * Controller.prime_lens_price
-
-#   def obeys_confidence(self):
-#     return self.pre_gem.count > Controller.LOW_CONF_COUNT and self.post_gem.count > Controller.LOW_CONF_COUNT
-
-#   def obeys_vaal(self):
-#     return not (self.pre_gem.is_vaal() or self.post_gem.is_vaal())
-
-#   def obeys_disallow(self):
-#     return self.pre_gem.is_allowed() and self.post_gem.is_allowed()
-
-#   def lens_type(self):
-#     if self.pre_gem.is_support():
-#       return "Secondary"
-#     else:
-#       return "Primary"
-
+    return f"Profit: {self.profit:.2f}, Pre Gem: {self.pre_gem.__str__()}, Base Value: {self.pre_gem.chaos_value:.2f}"
 
 # Holds data and methods for corrupt operations
 class CorruptOperation:
@@ -694,7 +494,11 @@ class CorruptOperation:
     sum = 0
     named_gems = Controller.get_gems(self.pre_gem.name, _type=self.pre_gem.type)
     named_vaal_gems = Controller.get_gems(f"Vaal {self.pre_gem.name}")
-    has_vaal = self.pre_gem.has_vaal()
+
+    # See https://github.com/ThePi1/poe-gem-arbitrage/issues/29
+    # poe ninja doesn't have the right data for this so I just take brick price for now
+    # has_vaal = self.pre_gem.has_vaal()
+    has_vaal = False
     gems_0_8 = [None, None, None, None, None, None, None, None]
 
     for gem in named_gems:
@@ -847,7 +651,7 @@ class Gem:
       return f"{self.name}"
 
   def has_vaal(self):
-    return f"Vaal {self.name}" in Controller.lens_weights
+    return f"Vaal {self.name}" in Controller.get_gem_names()
   
   def is_awakened(self):
     return f"Awakened" in self.name
