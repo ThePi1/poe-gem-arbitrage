@@ -37,7 +37,8 @@ class Controller:
   # simulated_weights = import_sim_json(simulated_weight_filename)
   lens_weights = {}
   vivid_watcher_weights = {}
-  gem_attributes = {}
+  gem_attributes = {"int": [], "dex": [], "str": []}
+  gem_attributes_flip = {}
 
   # Font operation 'numbering' is reserved as follows:
 
@@ -245,8 +246,9 @@ class Controller:
         for row in reader:
           line_count += 1
           if line_count == 1: continue # Skip first line in CSV
-          if row[0] not in Controller.gem_attributes:
-            Controller.gem_attributes[row[0]] = row[1] 
+          if row[0] not in Controller.gem_attributes[row[1]]:
+            Controller.gem_attributes[row[1]].append(row[0]) 
+            Controller.gem_attributes_flip[row[0]] = row[1]
         print(f"Loaded {line_count} gem attribute mappings.")
 
   # Import gem weight csv
@@ -369,14 +371,21 @@ class Controller:
       Controller.all_font1_operations.append(font1_op)
       types = []
       for gem_name in gem_name_list:
-        gems_type = Controller.get_types_by_name(gem_name)
-        for gem in gems_type:
-          if gem.type not in types:
-            types.append((gem.name, gem.type))
+        if gem_name in Controller.gem_attributes_flip and Controller.gem_attributes_flip[gem_name] == attr:
+          valid_types = Controller.get_types_by_name(gem_name)
+          for t in valid_types:
+            if t not in types:
+              types.append((gem_name, t))
       
+      num_types = len(types)
+      print(f"Using {num_types} types for font1.")
       for gem_name_type in types:
         candidates = Controller.get_gems(gem_name_type[0], _type=gem_name_type[1])
-        pre_gem = Controller.choose_gem(candidates)
+        post_gem = Controller.choose_gem(candidates, Font1Operation.gem_order, Font1Operation.qual_order)
+        font1_op.profit += (post_gem.chaos_value / num_types)
+        font1_op.post_gem_list.append(post_gem)
+    
+    # Font2 now
 
     for gem_name in gem_name_list:
       # If applicable, generate VW operation for this gem
@@ -527,12 +536,13 @@ class Controller:
     Controller.gems_dict = {}
 
 class Font1Operation:
+  gem_order = [20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0]
+  qual_order = [20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0]
+
   def __init__(self):
     self.post_gem_list = []
     self.attribute = None
     self.profit = 0
-    self.gem_order = [20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0]
-    self.qual_order = [20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0]
 
   def table_format(self):
       return [self.profit, self.attribute, len(self.post_gem_list)]
@@ -922,12 +932,15 @@ def runTradesUi(window, app):
   # gem_column_width = { 1:180, 2:180, 8:100 }
   corrupt_column_width = { 1:250 }
   wokegem_column_width = { 1:250 }
+  font1_column_width   = { 2:120 }
   # for k,v in gem_column_width.items():
   #   window.ui.gemTable.setColumnWidth(k, v)
   for k,v in corrupt_column_width.items():
     window.ui.corruptTable.setColumnWidth(k,v)
   for k,v in wokegem_column_width.items():
     window.ui.wokegemTable.setColumnWidth(k, v)
+  for k,v in font1_column_width.items():
+    window.ui.font1Table.setColumnWidth(k, v)
 
   # Done! Set status message
   window.statusBar().clearMessage()
