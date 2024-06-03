@@ -1,4 +1,3 @@
 requests
-p_tqdm
 pyinstaller
 pyqt6
