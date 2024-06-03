@@ -386,6 +386,22 @@ class Controller:
         font1_op.post_gem_list.append(post_gem)
     
     # Font2 now
+    for gem_name in gem_name_list:
+      valid_types = Controller.get_types_by_name(gem_name)
+      gemtypes = []
+      for t in valid_types:
+        typed_gems = Controller.get_gems(gem_name, t)
+        pre_gem = Controller.choose_gem(typed_gems, Font2Operation.gem_order, Font2Operation.qual_order)
+        font2_op = Font2Operation()
+        Controller.all_font2_operations.append(font2_op)
+        font2_op.pre_gem = pre_gem
+        gemtypes.append(font2_op)
+      sum_profit = 0
+      for op in gemtypes:
+        sum_profit += op.pre_gem.chaos_value
+      for op in gemtypes:
+        op.profit = (sum_profit / 3) - op.pre_gem.chaos_value
+
 
     for gem_name in gem_name_list:
       # If applicable, generate VW operation for this gem
@@ -549,6 +565,20 @@ class Font1Operation:
   
   def __str__(self):
     return f"Profit: {self.profit}, Attribute: {self.attribute}, # possible gems: {len(self.post_gem_list)}"
+
+class Font2Operation:
+  gem_order = [20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0]
+  qual_order = [20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0]
+
+  def __init__(self):
+    self.pre_gem = None
+    self.profit = 0
+
+  def table_format(self):
+      return [f"{self.profit:.2f}", str(self.pre_gem), self.pre_gem.chaos_value]
+  
+  def __str__(self):
+    return f"Profit: {self.profit:.2f}, Pre Gem: {self.pre_gem.__str__()}, Base Value: {self.pre_gem.chaos_value}"
 
 # Holds data and methods for trades (lens operations)
 # class LensOperation:
@@ -933,6 +963,7 @@ def runTradesUi(window, app):
   corrupt_column_width = { 1:250 }
   wokegem_column_width = { 1:250 }
   font1_column_width   = { 2:120 }
+  font2_column_width   = { 1:200 }
   # for k,v in gem_column_width.items():
   #   window.ui.gemTable.setColumnWidth(k, v)
   for k,v in corrupt_column_width.items():
@@ -941,6 +972,8 @@ def runTradesUi(window, app):
     window.ui.wokegemTable.setColumnWidth(k, v)
   for k,v in font1_column_width.items():
     window.ui.font1Table.setColumnWidth(k, v)
+  for k,v in font2_column_width.items():
+    window.ui.font2Table.setColumnWidth(k, v)
 
   # Done! Set status message
   window.statusBar().clearMessage()
