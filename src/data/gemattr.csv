@@ -1,0 +1,273 @@
+﻿Absolution,str
+Ancestral Cry,str
+Ancestral Protector,str
+Ancestral Warchief,str
+Anger,str
+Animate Guardian,str
+Battlemage's Cry,str
+Berserk,str
+Bladestorm,str
+Blood and Sand,str
+Boneshatter,str
+Call to Arms,str
+Chain Hook,str
+Cleave,str
+Consecrated Path,str
+Corrupting Fever,str
+Decoy Totem,str
+Defiance Banner,str
+Determination,str
+Devouring Totem,str
+Dominating Blow,str
+Dread Banner,str
+Earthquake,str
+Earthshatter,str
+Enduring Cry,str
+Exsanguinate,str
+Flame Link,str
+Flesh and Stone,str
+Frozen Legion,str
+General's Cry,str
+Glacial Hammer,str
+Ground Slam,str
+Heavy Strike,str
+Herald of Ash,str
+Herald of Purity,str
+Holy Flame Totem,str
+Ice Crash,str
+Immortal Call,str
+Infernal Blow,str
+Infernal Cry,str
+Intimidating Cry,str
+Leap Slam,str
+Molten Shell,str
+Molten Strike,str
+Perforate,str
+Petrified Blood,str
+Pride,str
+Protective Link,str
+Punishment,str
+Purity of Fire,str
+Rage Vortex,str
+Rallying Cry,str
+Reap,str
+Reckoning,str
+Rejuvenation Totem,str
+Searing Bond,str
+Seismic Cry,str
+Shield Charge,str
+Shield Crush,str
+Shockwave Totem,str
+Smite,str
+Static Strike,str
+Steelskin,str
+Summon Flame Golem,str
+Summon Stone Golem,str
+Sunder,str
+Sweep,str
+Tectonic Slam,str
+Vengeance,str
+Vigilant Strike,str
+Vitality,str
+Volcanic Fissure,str
+Vulnerability,str
+War Banner,str
+Warlord's Mark,str
+Alchemist's Mark,dex
+Ambush,dex
+Animate Weapon,dex
+Arctic Armour,dex
+Artillery Ballista,dex
+Barrage,dex
+Bear Trap,dex
+Blade Blast,dex
+Blade Flurry,dex
+Blade Trap,dex
+Blade Vortex,dex
+Bladefall,dex
+Blast Rain,dex
+Blink Arrow,dex
+Blood Rage,dex
+Burning Arrow,dex
+Caustic Arrow,dex
+Charged Dash,dex
+Cobra Lash,dex
+Cremation,dex
+Cyclone,dex
+Dash,dex
+Desecrate,dex
+Detonate Dead,dex
+Double Strike,dex
+Dual Strike,dex
+Elemental Hit,dex
+Ensnaring Arrow,dex
+Ethereal Knives,dex
+Explosive Arrow,dex
+Explosive Concoction,dex
+Explosive Trap,dex
+Fire Trap,dex
+Flamethrower Trap,dex
+Flicker Strike,dex
+Frenzy,dex
+Frost Blades,dex
+Galvanic Arrow,dex
+Grace,dex
+Haste,dex
+Hatred,dex
+Herald of Agony,dex
+Herald of Ice,dex
+Ice Shot,dex
+Ice Trap,dex
+Intuitive Link,dex
+Lacerate,dex
+Lancing Steel,dex
+Lightning Arrow,dex
+Lightning Strike,dex
+Mirror Arrow,dex
+Pestilent Strike,dex
+Phase Run,dex
+Plague Bearer,dex
+Poacher's Mark,dex
+Poisonous Concoction,dex
+Precision,dex
+Puncture,dex
+Purity of Ice,dex
+Rain of Arrows,dex
+Reave,dex
+Riposte,dex
+Scourge Arrow,dex
+Seismic Trap,dex
+Shattering Steel,dex
+Shrapnel Ballista,dex
+Siege Ballista,dex
+Smoke Mine,dex
+Snipe,dex
+Sniper's Mark,dex
+Spectral Helix,dex
+Spectral Shield Throw,dex
+Spectral Throw,dex
+Split Arrow,dex
+Splitting Steel,dex
+Storm Rain,dex
+Summon Ice Golem,dex
+Temporal Chains,dex
+Temporal Rift,dex
+Tornado,dex
+Tornado Shot,dex
+Toxic Rain,dex
+Unearth,dex
+Vampiric Link,dex
+Venom Gyre,dex
+Viper Strike,dex
+Volatile Dead,dex
+Whirling Blades,dex
+Wild Strike,dex
+Withering Step,dex
+Arc,int
+Arcane Cloak,int
+Arcanist Brand,int
+Armageddon Brand,int
+Assassin's Mark,int
+Automation,int
+Ball Lightning,int
+Bane,int
+Blazing Salvo,int
+Blight,int
+Bodyswap,int
+Bone Offering,int
+Brand Recall,int
+Clarity,int
+Cold Snap,int
+Conductivity,int
+Contagion,int
+Conversion Trap,int
+Crackling Lance,int
+Creeping Frost,int
+Dark Pact,int
+Despair,int
+Destructive Link,int
+Discharge,int
+Discipline,int
+Divine Ire,int
+Elemental Weakness,int
+Energy Blade,int
+Enfeeble,int
+Essence Drain,int
+Eye of Winter,int
+Fireball,int
+Firestorm,int
+Flame Dash,int
+Flame Surge,int
+Flame Wall,int
+Flameblast,int
+Flammability,int
+Flesh Offering,int
+Forbidden Rite,int
+Freezing Pulse,int
+Frost Bomb,int
+Frost Shield,int
+Frost Wall,int
+Frostbite,int
+Frostblink,int
+Frostbolt,int
+Galvanic Field,int
+Glacial Cascade,int
+Herald of Thunder,int
+Hexblast,int
+Hydrosphere,int
+Ice Nova,int
+Ice Spear,int
+Icicle Mine,int
+Incinerate,int
+Kinetic Blast,int
+Kinetic Bolt,int
+Lightning Conduit,int
+Lightning Spire Trap,int
+Lightning Tendrils,int
+Lightning Trap,int
+Lightning Warp,int
+Malevolence,int
+Manabond,int
+Orb of Storms,int
+Penance Brand,int
+Power Siphon,int
+Purifying Flame,int
+Purity of Elements,int
+Purity of Lightning,int
+Pyroclast Mine,int
+Raise Spectre,int
+Raise Zombie,int
+Righteous Fire,int
+Rolling Magma,int
+Scorching Ray,int
+Shock Nova,int
+Sigil of Power,int
+Siphoning Trap,int
+Soul Link,int
+Soulrend,int
+Spark,int
+Spellslinger,int
+Spirit Offering,int
+Storm Brand,int
+Storm Burst,int
+Storm Call,int
+Stormbind,int
+Stormblast Mine,int
+Summon Carrion Golem,int
+Summon Chaos Golem,int
+Summon Holy Relic,int
+Summon Lightning Golem,int
+Summon Raging Spirit,int
+Summon Reaper,int
+Summon Skeletons,int
+Summon Skitterbots,int
+Tempest Shield,int
+Void Sphere,int
+Voltaxic Burst,int
+Vortex,int
+Wave of Conviction,int
+Winter Orb,int
+Wintertide Brand,int
+Wither,int
+Wrath,int
+Zealotry,int
