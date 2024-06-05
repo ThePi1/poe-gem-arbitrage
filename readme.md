@@ -4,7 +4,7 @@ A Path of Exile tool for generating money by changing gems. (Now with GUI!)
 
 ## What does it do?
 
-TL;DR: It looks up the prices of gems and regrading lenses, and uses alt-quality weights to find profitable gems to use them on. Also, does the same (roughly) for vaal orbs.
+TL;DR: It looks up the prices of gems and currency, and uses that information to generate profitable ways of modifying gems for profit. 
 
 ## Usage
 Download the latest release and unzip to a separate folder; run the executable.
