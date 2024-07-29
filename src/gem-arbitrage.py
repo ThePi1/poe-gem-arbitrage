@@ -69,6 +69,10 @@ class Controller:
   exceptional_gems = ['Enhance Support', 'Empower Support', 'Enlighten Support', 'Awakened Enhance Support', 'Awakened Empower Support', 'Awakened Enlighten Support']
   DISALLOWED_GEMS = exceptional_gems + ['Elemental Penetration Support']
 
+  # List of gems with 'of' in their name
+  # Bit of a workaround poe.ninja JSON parsing
+  of_gems = ['Awakened Increased Area of Effect Support', 'Fist of War Support', 'Increased Area of Effect Support', 'Herald of Ash', 'Herald of Purity', 'Purity of Fire', 'Vaal Impurity of Fire', 'Rain of Arrows', 'Vaal Rain of Arrows', 'Herald of Agony', 'Herald of Ice', 'Purity of Ice', 'Vaal Impurity of Ice', 'Orb of Storms', 'Bone Offering', 'Flesh Offering', 'Spirit Offering', 'Purity of Elements', 'Purity of Lightning', 'Vaal Impurity of Lightning', 'Eye of Winter', 'Sigil of Power']
+
   # Parse the settings.ini file for the following settings
   try:
     ninja_json_filename               = str(parser.get('filepaths', "ninja_json_filename"))
@@ -174,11 +178,18 @@ class Controller:
 
       # Set name and type
       name_parts = line_item['name'].rsplit("of", 1)
-      if 'tradeFilter' in line_item:
+
+      if len(name_parts) == 1 or line_item['name'] in Controller.of_gems:
+        new_gem.name = line_item["name"]
+        new_gem.type = ""
+      elif len(name_parts) == 2:
         new_gem.type = name_parts[1].strip(' ')
         new_gem.name = name_parts[0].strip(' ')
       else:
+        print(f"Warning, {line_item['name']} has more than 2 parts to parse, trying my best...")
         new_gem.name = line_item["name"]
+        new_gem.type = ""
+
 
       # Set attribute, if applicable
       if new_gem.name in Controller.gem_attributes:
@@ -556,6 +567,9 @@ class WatcherOperation:
     weight_sum = sum(Controller.vivid_watcher_weights.values())
     for name, weight in Controller.vivid_watcher_weights.items():
       chosen_gem = WatcherOperation.get_awakened_from_name(name)
+      if chosen_gem is None:
+        WatcherOperation.return_value = working_return_value
+        return
       contribution = chosen_gem.chaos_value * (weight / weight_sum)
       if debug: print(f"Gem {chosen_gem} adds {contribution:.2f} @ {weight/weight_sum:.2f} to total return value.")
       working_return_value += contribution
