@@ -71,7 +71,7 @@ class Controller:
 
   # List of gems with 'of' in their name
   # Bit of a workaround poe.ninja JSON parsing
-  of_gems = ['Awakened Increased Area of Effect Support', '	Fist of War Support', 'Increased Area of Effect Support', 'Herald of Ash', 'Herald of Purity', 'Purity of Fire', 'Vaal Impurity of Fire', 'Rain of Arrows', 'Vaal Rain of Arrows', 'Herald of Agony', 'Herald of Ice', 'Purity of Ice', 'Vaal Impurity of Ice', 'Orb of Storms', 'Bone Offering', 'Flesh Offering', 'Spirit Offering', 'Purity of Elements', 'Purity of Lightning', 'Vaal Impurity of Lightning', 'Eye of Winter', 'Sigil of Power']
+  of_gems = ['Awakened Increased Area of Effect Support', 'Fist of War Support', 'Increased Area of Effect Support', 'Herald of Ash', 'Herald of Purity', 'Purity of Fire', 'Vaal Impurity of Fire', 'Rain of Arrows', 'Vaal Rain of Arrows', 'Herald of Agony', 'Herald of Ice', 'Purity of Ice', 'Vaal Impurity of Ice', 'Orb of Storms', 'Bone Offering', 'Flesh Offering', 'Spirit Offering', 'Purity of Elements', 'Purity of Lightning', 'Vaal Impurity of Lightning', 'Eye of Winter', 'Sigil of Power']
 
   # Parse the settings.ini file for the following settings
   try:
