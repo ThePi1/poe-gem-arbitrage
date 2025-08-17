@@ -35,6 +35,10 @@ class Controller:
   # Initialize data structures
   lens_weights = {}
   vivid_watcher_weights = {}
+
+  # May or may not be used
+  vivid_watcher_alt_weights = {}
+
   gem_attributes = {"int": [], "dex": [], "str": []}
   gem_attributes_flip = {}
 
@@ -75,33 +79,45 @@ class Controller:
 
   # Parse the settings.ini file for the following settings
   try:
-    ninja_json_filename               = str(parser.get('filepaths', "ninja_json_filename"))
-    ninja_json_currency_filename      = str(parser.get('filepaths', "ninja_json_currency_filename"))
-    vivid_watcher_file                = str(parser.get('filepaths', "vivid_watcher_file"))
-    gem_attr_file                     = str(parser.get('filepaths', "gem_attr_file"))
-    version_file                      = str(parser.get('filepaths', "version_file"))
-    API_URL                           = str(parser.get('filepaths', 'api_url'))
-    CUR_API_URL                       = str(parser.get('filepaths', 'cur_api_url'))
-    version_url                       = str(parser.get('filepaths', 'version_url'))
-    project_url                       = str(parser.get('filepaths', 'project_url'))
-    vivid_watcher_price               = int(parser.get('market_settings', 'vivid_watcher_price'))
-    yellow_beast_price                = int(parser.get('market_settings', 'yellow_beast_price'))
-    max_data_staleness                = int(parser.get('general', 'max_data_staleness'))
-    DISABLE_OUT                       = not is_true(parser.get('general', 'debug_messages'))
-    print_font1                       = is_true(parser.get('general', 'print_font1'))
-    print_font2                       = is_true(parser.get('general', 'print_font2'))
-    print_corrupts                    = is_true(parser.get('general', 'print_corrupts'))
-    print_watchers                    = is_true(parser.get('general', 'print_watchers'))
-    pull_currency_prices              = is_true(parser.get('general', 'pull_currency_prices'))
-    MAX_RESULTS                       = int(parser.get('general', 'max_results'))
-    DIV_PRICE                         = int(parser.get('market_settings', 'divine_price'))
-    reverse_console_listings          = is_true(parser.get('general', 'reverse_console_listings'))
-    corrupt_operation_price_floor     = int(parser.get('general', "corrupt_operation_price_floor"))
-    LOW_CONF_COUNT                    = int(parser.get('general', "low_confidence_count"))
+    ninja_json_filename                   = str(parser.get('filepaths', "ninja_json_filename"))
+    ninja_json_currency_filename          = str(parser.get('filepaths', "ninja_json_currency_filename"))
+    vivid_watcher_file                    = str(parser.get('filepaths', "vivid_watcher_file"))
+    vivid_watcher_alt_file                = str(parser.get('filepaths', "vivid_watcher_alt_file"))
+    gem_attr_file                         = str(parser.get('filepaths', "gem_attr_file"))
+    version_file                          = str(parser.get('filepaths', "version_file"))
+    API_URL                               = str(parser.get('filepaths', 'api_url'))
+    CUR_API_URL                           = str(parser.get('filepaths', 'cur_api_url'))
+    version_url                           = str(parser.get('filepaths', 'version_url'))
+    project_url                           = str(parser.get('filepaths', 'project_url'))
+    vivid_watcher_price                   = int(parser.get('market_settings', 'vivid_watcher_price'))
+    yellow_beast_price                    = int(parser.get('market_settings', 'yellow_beast_price'))
+    max_data_staleness                    = int(parser.get('general', 'max_data_staleness'))
+    DISABLE_OUT                           = not is_true(parser.get('general', 'debug_messages'))
+    print_font1                           = is_true(parser.get('general', 'print_font1'))
+    print_font2                           = is_true(parser.get('general', 'print_font2'))
+    print_corrupts                        = is_true(parser.get('general', 'print_corrupts'))
+    print_watchers                        = is_true(parser.get('general', 'print_watchers'))
+    pull_currency_prices                  = is_true(parser.get('general', 'pull_currency_prices'))
+    MAX_RESULTS                           = int(parser.get('general', 'max_results'))
+    DIV_PRICE                             = int(parser.get('market_settings', 'divine_price'))
+    reverse_console_listings              = is_true(parser.get('general', 'reverse_console_listings'))
+    corrupt_operation_price_floor         = int(parser.get('general', "corrupt_operation_price_floor"))
+    LOW_CONF_COUNT                        = int(parser.get('general', "low_confidence_count"))
+    beast_consume_chance_0                = float(parser.get('market_settings', 'beast_consume_chance_0'))
+    beast_consume_chance_10               = float(parser.get('market_settings', 'beast_consume_chance_10'))
+    beast_consume_chance_20               = float(parser.get('market_settings', 'beast_consume_chance_20'))
+    beast_consume_chance_30               = float(parser.get('market_settings', 'beast_consume_chance_30'))
+    beast_consume_chance_40               = float(parser.get('market_settings', 'beast_consume_chance_40'))
+    use_secondary_watcher_data            = is_true(parser.get('market_settings', 'use_secondary_watcher_data'))
+    secondary_watcher_data_attempt_count  = int(parser.get('market_settings', 'secondary_watcher_data_attempt_count'))
+    awakened_miss_price                   = int(parser.get('market_settings', 'awakened_miss_price'))
 
   except Exception as e:
     print(f"Error loading settings.ini file. Please check the exception below and the corresponding entry in the settings file.\nMost likely, the format for your entry is off. Check the top of settings.ini for more info.\n\n{traceback.format_exc()}")
     exit()
+
+  if ((beast_consume_chance_0 + beast_consume_chance_10 + beast_consume_chance_20 + beast_consume_chance_30 + beast_consume_chance_40) != 1):
+    print("Error: Beast consume chances add up to something other than 100%. See settings.ini for more details.")
 
   def get_version_from_file():
     with open(Controller.version_file) as local_version_file:
@@ -245,6 +261,14 @@ class Controller:
       reader = csv.reader(w_file, delimiter=',', quotechar='|')
       for row in reader:
         Controller.vivid_watcher_weights[row[0]] = int(row[1])
+
+  # Import alternative gem weight csv
+  def import_alt_vivid_watcher_weights(_file):
+    with open(_file) as w_file:
+      reader = csv.reader(w_file, delimiter=',', quotechar='|')
+      for row in reader:
+        Controller.vivid_watcher_alt_weights[row[0]] = int(row[1])
+
 
 # Import currency prices from file
   def import_currency_prices():
@@ -547,6 +571,19 @@ class CorruptOperation:
 class WatcherOperation:
   level_priority = [1,2,3,4,5,6]
   qual_priority = [20,0,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]
+  beast_no_consume_chance = {
+                              0: Controller.beast_consume_chance_0,
+                             .1: Controller.beast_consume_chance_10,
+                             .2: Controller.beast_consume_chance_20,
+                             .3: Controller.beast_consume_chance_30,
+                             .4: Controller.beast_consume_chance_40
+                             }
+  
+  # Calculate the multiplier as a result of %chance to not consume beasts
+  not_consume_multiplier = 0
+  for nc_beast_chance, nc_dist_appear in beast_no_consume_chance.items():
+    not_consume_multiplier += (1 / (1 - nc_beast_chance)) * nc_dist_appear
+  
   # Average return for all gems
   return_value = None
   def __init__(self):
@@ -564,15 +601,27 @@ class WatcherOperation:
   def get_return():
     debug = False
     working_return_value = 0
-    weight_sum = sum(Controller.vivid_watcher_weights.values())
-    for name, weight in Controller.vivid_watcher_weights.items():
+    if Controller.use_secondary_watcher_data:
+      vw_selected_weight_datset = Controller.vivid_watcher_alt_weights
+      contribution_weight_sum = Controller.secondary_watcher_data_attempt_count
+    else:
+      vw_selected_weight_datset = Controller.vivid_watcher_weights
+      contribution_weight_sum = sum(vw_selected_weight_datset.values())
+    weight_sum = sum(vw_selected_weight_datset.values())
+
+
+    for name, weight in vw_selected_weight_datset.items():
       chosen_gem = WatcherOperation.get_awakened_from_name(name)
+      # Should never happen; is a data error
       if chosen_gem is None:
         WatcherOperation.return_value = working_return_value
         return
-      contribution = chosen_gem.chaos_value * (weight / weight_sum)
-      if debug: print(f"Gem {chosen_gem} adds {contribution:.2f} @ {weight/weight_sum:.2f} to total return value.")
+      contribution = chosen_gem.chaos_value * (weight / contribution_weight_sum)
+      if debug: print(f"Gem {chosen_gem} adds {contribution:.4f} @ {weight/contribution_weight_sum:.4f} to total return value.")
       working_return_value += contribution
+    if Controller.use_secondary_watcher_data:
+      # We have to find the "miss gem price" and add it back in, because we don't have weights for the rest, but we don't really care about the weight if it's a miss
+      working_return_value += Controller.awakened_miss_price * ((Controller.secondary_watcher_data_attempt_count - weight_sum) / Controller.secondary_watcher_data_attempt_count)
     WatcherOperation.return_value = working_return_value
     if debug: print(f"Total return: {working_return_value:.2f}")
   
@@ -580,7 +629,7 @@ class WatcherOperation:
     if not self.pre_gem:
       return None
     else:
-      return self.return_value - self.pre_gem.chaos_value - Controller.vivid_watcher_price - (3 * Controller.yellow_beast_price)
+      return self.return_value - self.pre_gem.chaos_value - (Controller.vivid_watcher_price / WatcherOperation.not_consume_multiplier) - (3 * Controller.yellow_beast_price)
     
   def get_awakened_from_name(awakened_name):
     candidates = Controller.get_gems(awakened_name, _type=None, _lv=None, _qual=None, _isCorrupt=False)
@@ -664,6 +713,8 @@ def getOutput():
   Controller.import_gem_attr(Controller.gem_attr_file)
   Controller.load_gems_from_json(Controller.ninja_json_filename)
   Controller.import_vivid_watcher_weights(Controller.vivid_watcher_file)
+  if Controller.use_secondary_watcher_data:
+    Controller.import_alt_vivid_watcher_weights(Controller.vivid_watcher_alt_file)
   Controller.calc()
   profitable_font1 = Controller.get_profitable_font1()
   profitable_font2 = Controller.get_profitable_font2()
