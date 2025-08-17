@@ -599,7 +599,7 @@ class WatcherOperation:
     return [f"{self.get_profit():.2f}", self.pre_gem.name, f"{self.pre_gem.chaos_value:.2f}"]
 
   def get_return():
-    debug = True
+    debug = False
     working_return_value = 0
     if Controller.use_secondary_watcher_data:
       vw_selected_weight_datset = Controller.vivid_watcher_alt_weights
