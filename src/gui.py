@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton
 from gui_about import Ui_AboutMenu
 from gui_main import Ui_GemArbitrageGUI
 from gui_updates import Ui_UpdateMenu
+from gui_watcher_tracker import Ui_VividWatcherTracker
 
 # Not currently using Worker class but might in the future to unblock GUI
 class Worker(QRunnable):
@@ -33,6 +34,9 @@ class Gui_MainWindow(QMainWindow):
         dlg.updateAbout(ver_current, url_text)
         dlg.exec()
 
+    def onVividTracker(self):
+       dlg = Gui_VividTrackerDlg(parent=self)
+
     def onExit(self):
         sys.exit(0)
 
@@ -41,6 +45,18 @@ class Gui_MainWindow(QMainWindow):
         dlg.updateVersion(ver_current, ver_latest, url_text, update_text)
         dlg.exec()
 
+class Gui_VividTrackerDlg(QMainWindow):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.ui = Ui_VividWatcherTracker()
+        self.ui.setupUi(self)
+        self.show()
+
+    # def updateAbout(self, ver_current, url_text):
+    #   text =  self.ui.label.text()
+    #   text = re.sub('V_CUR', ver_current, text)
+    #   text = re.sub('SRC_URL', url_text ,text)
+    #   self.ui.label.setText(QtCore.QCoreApplication.translate("AboutMenu", text))
 
 class Gui_AboutDlg(QDialog):
     def __init__(self, parent=None):

@@ -830,6 +830,7 @@ def main():
     # Set up triggers that need specific data
     win.ui.actionRun_Trades.triggered.connect(lambda: runTradesUi(win, app))
     win.ui.actionAbout.triggered.connect(lambda: Gui_MainWindow.onAbout(win, ver_current, project_url))
+    win.ui.actionVivid_Watcher_Tracker.triggered.connect(lambda: Gui_MainWindow.onVividTracker(win))
     win.ui.actionUpdateCheck.triggered.connect(lambda: Gui_MainWindow.onUpdateWindow(win, ver_current, ver_latest, project_url, update_text))
     
     win.show()
