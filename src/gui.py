@@ -109,7 +109,7 @@ class Gui_VividTrackerDlg(QMainWindow):
         with open(filepath, 'w', newline='') as f:
             writer = csv.writer(f)
             for row in rows:
-              writer.writerow(row)  # Write the keys as header
+              writer.writerow(row)
 
         self.statusBar().showMessage(f"History saved successfully as {filepath}", 10000)
         
@@ -185,13 +185,6 @@ class Gui_VividTrackerDlg(QMainWindow):
         new_row = f"{current_gem} > {gem_name_short}"
         q_new_row = QListWidgetItem(QtCore.QCoreApplication.translate("VividWatcherTracker", new_row))
         self.ui.list_history.insertItem(0, q_new_row)
-        print(f"Added: {current_gem} > {gem_name_short}")
-
-    # def updateAbout(self, ver_current, url_text):
-    #   text =  self.ui.label.text()
-    #   text = re.sub('V_CUR', ver_current, text)
-    #   text = re.sub('SRC_URL', url_text ,text)
-    #   self.ui.label.setText(QtCore.QCoreApplication.translate("AboutMenu", text))
 
 class Gui_AboutDlg(QDialog):
     def __init__(self, parent=None):

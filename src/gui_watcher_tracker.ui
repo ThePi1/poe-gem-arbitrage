@@ -26,31 +26,6 @@
     <property name="autoScroll">
      <bool>true</bool>
     </property>
-    <item>
-     <property name="text">
-      <string>Deadly Ailments &gt; Added Chaos Damage</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Unleash &gt; Deadly Ailments</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Burning Damage &gt; Unleash</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Added Cold Damage &gt; Burning Damage</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Added Fire Damage &gt; Added Cold Damage</string>
-     </property>
-    </item>
    </widget>
    <widget class="QLabel" name="lb_history">
     <property name="geometry">
