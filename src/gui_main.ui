@@ -319,6 +319,7 @@
      <string>File</string>
     </property>
     <addaction name="actionRun_Trades"/>
+    <addaction name="actionVivid_Watcher_Tracker"/>
     <addaction name="actionExit"/>
    </widget>
    <addaction name="menuFile"/>
@@ -351,6 +352,11 @@
   <action name="actionUpdateCheck">
    <property name="text">
     <string>Check for Updates</string>
+   </property>
+  </action>
+  <action name="actionVivid_Watcher_Tracker">
+   <property name="text">
+    <string>Vivid Watcher Tracker</string>
    </property>
   </action>
  </widget>

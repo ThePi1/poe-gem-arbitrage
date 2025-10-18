@@ -1,13 +1,18 @@
 import sys
 import re
+import random
+import csv
+import os
+from datetime import datetime
 
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtCore import Qt, QRunnable
-from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton
+from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton, QListView, QListWidget, QListWidgetItem
 
 from gui_about import Ui_AboutMenu
 from gui_main import Ui_GemArbitrageGUI
 from gui_updates import Ui_UpdateMenu
+from gui_watcher_tracker import Ui_VividWatcherTracker
 
 # Not currently using Worker class but might in the future to unblock GUI
 class Worker(QRunnable):
@@ -33,6 +38,9 @@ class Gui_MainWindow(QMainWindow):
         dlg.updateAbout(ver_current, url_text)
         dlg.exec()
 
+    def onVividTracker(self):
+       dlg = Gui_VividTrackerDlg(parent=self)
+
     def onExit(self):
         sys.exit(0)
 
@@ -41,6 +49,142 @@ class Gui_MainWindow(QMainWindow):
         dlg.updateVersion(ver_current, ver_latest, url_text, update_text)
         dlg.exec()
 
+class Gui_VividTrackerDlg(QMainWindow):
+    motd = ["\"Money often costs too much.\"\nRalph Waldo Emerson",
+            "\"An investment in knowledge pays the best interest.\"\nBenjamin Franklin",
+            "\"Wealth is the slave of a wise man. The master of a fool.\"\nSeneca",
+            "\"A nickel ain't worth a dime anymore.\"\nYogi Berra",
+            "\"You must gain control over your money or the lack of it will forever control you.\"\nDave Ramsey",
+            "\"Don't tell me what you value, show me your budget, and I'll tell you what you value.\"\nJoe Biden",
+            "\"No wealth can ever make a bad man at peace with himself.\"\nPlato",
+            "\"If you have trouble imagining a 20% loss in the stock market, you shouldn't be in stocks.\"\nJohn Bogle",
+            "\"A journey of a thousand miles must begin with a single step.\"\nLao Tzu",
+            "\"Never spend your money before you have it.\"\nThomas Jefferson",
+            "\"I made my money the old-fashioned way. I was very nice to a wealthy relative right before he died.\"\nMalcolm Forbes",
+            "\"Wealth is but dung, useful only when spread about.\"\nChinese Proverb",
+            "\"Create an account to read the full story.\"\nMedium.com",
+            "\"Want a break from the ads? If you tap now to watch a short video, you'll receive 30 minutes of ad free music.\"\nSpotify",
+            "\"Early to bed and early to rise, makes a man healthy, wealthy, and wise.\"\nBenjamin Franklin",
+            "\"Capital as such is not evil; it is its wrong use that is evil. Capital in some form or other will always be needed.\"\nGandhi",
+            "\"Money isn't everything... but it ranks right up there with oxygen.\"\nRita Davenport"]
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.ui = Ui_VividWatcherTracker()
+        self.ui.setupUi(self)
+        # Custom code in onLaunch
+        self.on_launch()
+        self.show()
+
+    def debug(self):
+        print(f"Debug info:\n")
+        print(f"Top entry: {self.get_first_row_history()}")
+        print(f"Current Gem: {self.get_current_gem()}")
+        cwd = os.getcwd()
+        print(f"Current working directory: {cwd}")
+
+    def get_first_row_history(self):
+        list_size = self.ui.list_history.count()
+        if list_size == 0:
+            return "Start"
+        else:
+            return self.ui.list_history.item(0).text()
+    
+    def remove_top_entry(self):
+        list_size = self.ui.list_history.count()
+        if list_size == 0: return
+        self.ui.list_history.takeItem(0)
+
+    def clear(self):
+        for i in range(self.ui.list_history.count()):
+            self.remove_top_entry()
+
+    def export(self):
+        cwd = os.getcwd()
+        timestamp_string = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"poearb_watcher_{timestamp_string}.csv"
+        filepath = f"{cwd}\{filename}"
+
+        rows = self.get_history_list()
+        with open(filepath, 'w', newline='') as f:
+            writer = csv.writer(f)
+            for row in rows:
+              writer.writerow(row)
+
+        self.statusBar().showMessage(f"History saved successfully as {filepath}", 10000)
+        
+    def get_history_list(self):
+        out = []
+        for i in range(self.ui.list_history.count()):
+            pre,post = self.ui.list_history.item(i).text().split(" > ")
+            out.append((pre,post))
+        out.reverse()
+        return out
+    
+    def get_current_gem(self):
+        list_size = self.ui.list_history.count()
+        if list_size == 0:
+            return "Start"
+        else:
+            pre,post = self.ui.list_history.item(0).text().split(" > ")
+            return post
+
+    def on_launch(self):
+        title_text = self.ui.lb_title_text.text()
+        chosen_motd = random.choice(Gui_VividTrackerDlg.motd)
+        title_text = re.sub('TITLE_TEXT', chosen_motd, title_text)
+        self.ui.lb_title_text.setText(QtCore.QCoreApplication.translate("VividWatcherTracker", title_text))
+        self.connect_gem_buttons()
+    
+    def connect_gem_buttons(self):
+        # Regex my beloved
+        self.ui.pb_addchaos.released.connect(lambda: self.gem_click("Added Chaos Damage"))
+        self.ui.pb_addcold.released.connect(lambda: self.gem_click("Added Cold Damage"))
+        self.ui.pb_addfire.released.connect(lambda: self.gem_click("Added Fire Damage"))
+        self.ui.pb_addlight.released.connect(lambda: self.gem_click("Added Lightning Damage"))
+        self.ui.pb_ancall.released.connect(lambda: self.gem_click("Ancestral Call"))
+        self.ui.pb_anova.released.connect(lambda: self.gem_click("Arrow Nova"))
+        self.ui.pb_blasph.released.connect(lambda: self.gem_click("Blasphemy"))
+        self.ui.pb_brutality.released.connect(lambda: self.gem_click("Brutality"))
+        self.ui.pb_burn.released.connect(lambda: self.gem_click("Burning Damage"))
+        self.ui.pb_coc.released.connect(lambda: self.gem_click("Cast On Critical Strike"))
+        self.ui.pb_cwc.released.connect(lambda: self.gem_click("Cast While Channelling"))
+        self.ui.pb_chain.released.connect(lambda: self.gem_click("Chain"))
+        self.ui.pb_coldpen.released.connect(lambda: self.gem_click("Cold Penetration"))
+        self.ui.pb_contdest.released.connect(lambda: self.gem_click("Controlled Destruction"))
+        self.ui.pb_deadlyail.released.connect(lambda: self.gem_click("Deadly Ailments"))
+        self.ui.pb_elw.released.connect(lambda: self.gem_click("Elemental Damage with Attacks"))
+        self.ui.pb_elefoc.released.connect(lambda: self.gem_click("Elemental Focus"))
+        self.ui.pb_firepen.released.connect(lambda: self.gem_click("Fire Penetration"))
+        self.ui.pb_fork.released.connect(lambda: self.gem_click("Fork"))
+        self.ui.pb_genr.released.connect(lambda: self.gem_click("Generosity"))
+        self.ui.pb_gmp.released.connect(lambda: self.gem_click("Greater Multiple Projectiles"))
+        self.ui.pb_hext.released.connect(lambda: self.gem_click("Hextouch"))
+        self.ui.pb_aoe.released.connect(lambda: self.gem_click("Increased Area of Effect"))
+        self.ui.pb_lightpen.released.connect(lambda: self.gem_click("Lightning Penetration"))
+        self.ui.pb_mpd.released.connect(lambda: self.gem_click("Melee Physical Damage"))
+        self.ui.pb_meleesplash.released.connect(lambda: self.gem_click("Melee Splash"))
+        self.ui.pb_mindmg.released.connect(lambda: self.gem_click("Minion Damage"))
+        self.ui.pb_ms.released.connect(lambda: self.gem_click("Multistrike"))
+        self.ui.pb_casc.released.connect(lambda: self.gem_click("Spell Cascade"))
+        self.ui.pb_echo.released.connect(lambda: self.gem_click("Spell Echo"))
+        self.ui.pb_swiftaff.released.connect(lambda: self.gem_click("Swift Affliction"))
+        self.ui.pb_ubail.released.connect(lambda: self.gem_click("Unbound Ailments"))
+        self.ui.pb_uhleash.released.connect(lambda: self.gem_click("Unleash"))
+        self.ui.pb_vicproj.released.connect(lambda: self.gem_click("Vicious Projectiles"))
+        self.ui.pb_voidman.released.connect(lambda: self.gem_click("Void Manipulation"))
+
+        self.ui.c_pb_debug.released.connect(self.debug)
+        self.ui.c_pb_remlast.released.connect(self.remove_top_entry)
+        self.ui.c_pb_clear.released.connect(self.clear)
+        self.ui.c_pb_export.released.connect(self.export)
+
+
+    def gem_click(self, gem_name_short):
+        current_gem = self.get_current_gem()
+        new_row = f"{current_gem} > {gem_name_short}"
+        q_new_row = QListWidgetItem(QtCore.QCoreApplication.translate("VividWatcherTracker", new_row))
+        self.ui.list_history.insertItem(0, q_new_row)
 
 class Gui_AboutDlg(QDialog):
     def __init__(self, parent=None):
