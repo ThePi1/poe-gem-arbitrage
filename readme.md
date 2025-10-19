@@ -58,14 +58,22 @@ Normally, all (or almost all) of the profit comes from hitting 21/20 gems.
 - Vaal outcome data is wrong for transfigured gems that also have a Vaal version (this is due to a lack of cost data from poe.ninja). For now, it just assumes the cost of the vaal outcome is equal to the cost of the brick outcome.
 - Generally unreliable or wrong cost data for many gem corruption outcomes. Additionally, some gems (rarely) are desirable in specific quality or level that poe.ninja doesn't account for, that would significantly impact the profitability of the operation
 
-## Vivid Vultures
-The Vivid Vulture is a harvest-memory beast that rerolls Awakened Gems. I can't independently verify the weightings on these gems, so please take these results with a grain (or many) of salt.
+## Vivid Watcher
+The Vivid Watcher is a harvest-memory beast that rerolls Awakened Gems. I can't independently verify the weightings on these gems, so please take these results with a grain (or many) of salt.
 Be sure to also update the `vivid_watcher_price` setting as it doesn't yet pull data from any API. It needs to be set manually.
 
-Weights are taken from the "Wealthy Exiles DB" sheet and Discord.
+Weights are taken from the "Wealthy Exiles DB" sheet and Discord. Work is currently being done to more accurately gather and track this information.
 
 For more information on this, see:
 https://www.poewiki.net/wiki/Vivid_Watcher
+
+### Vivid Watcher Tracker
+The Vivid Watcher Tracker is a tool built to more easily keep track of the result of Vivid Watcher uses. This tool can be found in the File > Vivid Watcher Tracker menu.
+
+The first and most important feature is a motivational quote at the top of the screen.
+
+Aside from that, the buttons on the left correspond to the results of a Vivid Watcher operation. This keeps track of the results on the right, and then can be exported and cleared to CSV files using buttons below the history list.
+File > Merge Output CSVs will merge the generated CSVs (ones that follow the "poearb_watcher*csv" format) into two other CSVs: one for the merged history, and one with the weights corresponding to the newly generated merged CSV.
 
 ## Settings
 Settings are controlled by and can be found in the `settings.ini` file. Things like which sort method to use, which types of trades to use, single vs. multiple, etc., all live in the settings file.
