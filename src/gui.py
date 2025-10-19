@@ -3,6 +3,7 @@ import re
 import random
 import csv
 import os
+import glob
 from datetime import datetime
 
 from PyQt6 import QtCore, QtGui
@@ -67,6 +68,42 @@ class Gui_VividTrackerDlg(QMainWindow):
             "\"Early to bed and early to rise, makes a man healthy, wealthy, and wise.\"\nBenjamin Franklin",
             "\"Capital as such is not evil; it is its wrong use that is evil. Capital in some form or other will always be needed.\"\nGandhi",
             "\"Money isn't everything... but it ranks right up there with oxygen.\"\nRita Davenport"]
+    
+    gem_names = ["Minion Damage",
+                "Lightning Penetration",
+                "Controlled Destruction",
+                "Added Chaos Damage",
+                "Melee Splash",
+                "Elemental Focus",
+                "Deadly Ailments",
+                "Unbound Ailments",
+                "Brutality",
+                "Swift Affliction",
+                "Added Fire Damage",
+                "Melee Physical Damage",
+                "Burning Damage",
+                "Void Manipulation",
+                "Elemental Damage with Attacks",
+                "Added Cold Damage",
+                "Added Lightning Damage",
+                "Vicious Projectiles",
+                "Fire Penetration",
+                "Cold Penetration",
+                "Increased Area of Effect",
+                "Cast While Channelling",
+                "Cast On Critical Strike",
+                "Blasphemy",
+                "Generosity",
+                "Hextouch",
+                "Greater Multiple Projectiles",
+                "Fork",
+                "Spell Echo",
+                "Multistrike",
+                "Ancestral Call",
+                "Chain",
+                "Arrow Nova",
+                "Unleash",
+                "Spell Cascade"]
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -179,12 +216,54 @@ class Gui_VividTrackerDlg(QMainWindow):
         self.ui.c_pb_clear.released.connect(self.clear)
         self.ui.c_pb_export.released.connect(self.export)
 
+        self.ui.actionMerge_Output_CSVs.triggered.connect(self.merge_csv)
+
 
     def gem_click(self, gem_name_short):
         current_gem = self.get_current_gem()
         new_row = f"{current_gem} > {gem_name_short}"
         q_new_row = QListWidgetItem(QtCore.QCoreApplication.translate("VividWatcherTracker", new_row))
         self.ui.list_history.insertItem(0, q_new_row)
+
+    def merge_csv(self):
+        cwd = os.getcwd()
+        timestamp_string = datetime.now().strftime("%Y%m%d_%H%M%S")
+        merge_candidates = glob.glob(f"{cwd}\poearb_watcher*csv")
+        num_csv = len(merge_candidates)
+        merge_filename = f"poearb_merged_{num_csv}_{timestamp_string}.csv"
+        weight_filename = f"poearb_weights_{num_csv}_{timestamp_string}.csv"
+        merge_filepath = f"{cwd}\{merge_filename}"
+        weight_filepath = f"{cwd}\{weight_filename}"
+        final_csv_data = []
+        for c in merge_candidates:
+            with open(c, "r") as f:
+              reader = csv.reader(f, delimiter=",")
+              for i, line in enumerate(reader):
+                  final_csv_data.append(line)
+        with open(merge_filepath, 'w', newline='') as f:
+            writer = csv.writer(f)
+            for row in final_csv_data:
+              writer.writerow(row)
+        # Calc final weights
+        all_result_gems = [row[1] for row in final_csv_data if row[1] != "Start"]
+        final_weight_data = {}
+        for gem in Gui_VividTrackerDlg.gem_names:
+            full_gem_name = f"Awakened {gem} Support"
+            final_weight_data[full_gem_name] = 0
+
+        for gem in all_result_gems:
+            final_weight_data[full_gem_name]
+            full_gem_name = f"Awakened {gem} Support"
+            final_weight_data[full_gem_name] += 1
+
+        with open(weight_filepath, 'w', newline='') as f:
+            writer = csv.writer(f)
+            for row in final_weight_data.items():
+              writer.writerow(row)
+        
+        self.statusBar().showMessage(f"Matching CSVs merged into {merge_filename}, weights in {weight_filename}", 10000)
+
+
 
 class Gui_AboutDlg(QDialog):
     def __init__(self, parent=None):
