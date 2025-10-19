@@ -135,6 +135,7 @@ class Gui_VividTrackerDlg(QMainWindow):
     def clear(self):
         for i in range(self.ui.list_history.count()):
             self.remove_top_entry()
+        self.statusBar().showMessage(f"History cleared.", 5000)
 
     def export(self):
         cwd = os.getcwd()
@@ -162,6 +163,9 @@ class Gui_VividTrackerDlg(QMainWindow):
         list_size = self.ui.list_history.count()
         if list_size == 0:
             return "Start"
+        elif self.flag_forcestart:
+            self.flag_forcestart = False
+            return "Start"
         else:
             pre,post = self.ui.list_history.item(0).text().split(" > ")
             return post
@@ -172,6 +176,7 @@ class Gui_VividTrackerDlg(QMainWindow):
         title_text = re.sub('TITLE_TEXT', chosen_motd, title_text)
         self.ui.lb_title_text.setText(QtCore.QCoreApplication.translate("VividWatcherTracker", title_text))
         self.connect_gem_buttons()
+        self.flag_forcestart = False
     
     def connect_gem_buttons(self):
         # Regex my beloved
@@ -211,19 +216,24 @@ class Gui_VividTrackerDlg(QMainWindow):
         self.ui.pb_vicproj.released.connect(lambda: self.gem_click("Vicious Projectiles"))
         self.ui.pb_voidman.released.connect(lambda: self.gem_click("Void Manipulation"))
 
-        self.ui.c_pb_debug.released.connect(self.debug)
+        self.ui.actionDebug.triggered.connect(self.debug)
         self.ui.c_pb_remlast.released.connect(self.remove_top_entry)
         self.ui.c_pb_clear.released.connect(self.clear)
         self.ui.c_pb_export.released.connect(self.export)
+        self.ui.c_pb_forcestart.released.connect(self.force_start)
 
         self.ui.actionMerge_Output_CSVs.triggered.connect(self.merge_csv)
 
+    def force_start(self):
+        self.statusBar().showMessage(f"Forcing current gem to 'Start' for next operation.", 5000)
+        self.flag_forcestart = True
 
     def gem_click(self, gem_name_short):
         current_gem = self.get_current_gem()
         new_row = f"{current_gem} > {gem_name_short}"
         q_new_row = QListWidgetItem(QtCore.QCoreApplication.translate("VividWatcherTracker", new_row))
         self.ui.list_history.insertItem(0, q_new_row)
+        self.statusBar().showMessage(f"Added {gem_name_short} to history.", 5000)
 
     def merge_csv(self):
         cwd = os.getcwd()

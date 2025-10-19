@@ -6,15 +6,6 @@ from gui import Gui_MainWindow, GemTableModel
 from configparser import ConfigParser
 from PyQt6.QtWidgets import QApplication, QDialog, QMainWindow, QPushButton, QHeaderView
 
-# Import simulated ("multiple" method) weights
-def import_sim_json(file):
-  with open(file, 'r') as m2_file:
-    j = json.load(m2_file)
-    json_out = {}
-    for gem in j['gems']:
-      json_out[(gem['name'], gem['from_gem'], gem['to_gem'])] = gem['tries']
-    return json_out
-
 # Parse string to boolean
 def is_true(val):
   val = val.lower()
