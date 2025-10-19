@@ -15,7 +15,8 @@ temp_dir = "temp"
 dist_dir = "dist"
 build_dir = "build"
 data_dir = "data"
-out_filename = "poe-gem-arbitrage-1.5.1-alpha"
+icon_dir = "icon"
+out_filename = "poe-gem-arbitrage-1.7.0"
 
 
 temp_full_path = os.path.abspath(temp_dir)
@@ -39,6 +40,9 @@ shutil.copy("../LICENSE", temp_full_path)
 
 print("Adding data folder...")
 shutil.copytree(data_dir, os.path.join(temp_dir, data_dir))
+
+print("Adding icon folder...")
+shutil.copytree(icon_dir, os.path.join(temp_dir, icon_dir))
 
 print("Zipping data...")
 shutil.make_archive(out_filename, 'zip', temp_dir)

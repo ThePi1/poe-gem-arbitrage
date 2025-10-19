@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>954</width>
-    <height>610</height>
+    <width>961</width>
+    <height>621</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,7 +43,7 @@
    <widget class="QPushButton" name="c_pb_export">
     <property name="geometry">
      <rect>
-      <x>530</x>
+      <x>830</x>
       <y>480</y>
       <width>81</width>
       <height>31</height>
@@ -286,8 +286,8 @@
     <property name="geometry">
      <rect>
       <x>530</x>
-      <y>520</y>
-      <width>111</width>
+      <y>480</y>
+      <width>131</width>
       <height>31</height>
      </rect>
     </property>
@@ -962,17 +962,17 @@
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="c_pb_debug">
+   <widget class="QPushButton" name="c_pb_forcestart">
     <property name="geometry">
      <rect>
-      <x>820</x>
-      <y>480</y>
-      <width>75</width>
+      <x>530</x>
+      <y>520</y>
+      <width>131</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Debug</string>
+     <string>Force Next Gem 'Start'</string>
     </property>
    </widget>
   </widget>
@@ -981,7 +981,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>954</width>
+     <width>961</width>
      <height>22</height>
     </rect>
    </property>
@@ -990,6 +990,7 @@
      <string>File</string>
     </property>
     <addaction name="actionMerge_Output_CSVs"/>
+    <addaction name="actionDebug"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -997,6 +998,11 @@
   <action name="actionMerge_Output_CSVs">
    <property name="text">
     <string>Merge Output CSVs</string>
+   </property>
+  </action>
+  <action name="actionDebug">
+   <property name="text">
+    <string>Debug</string>
    </property>
   </action>
  </widget>

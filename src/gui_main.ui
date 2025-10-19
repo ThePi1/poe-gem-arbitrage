@@ -87,56 +87,17 @@
     <property name="movable">
      <bool>false</bool>
     </property>
-    <widget class="QWidget" name="font2Tab">
+    <widget class="QWidget" name="wokegemTab">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <attribute name="title">
-      <string>Font - By Gem</string>
+      <string>Vivid Watcher</string>
      </attribute>
-     <widget class="QTableView" name="font2Table">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>1051</width>
-        <height>621</height>
-       </rect>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <property name="sizeAdjustPolicy">
-       <enum>QAbstractScrollArea::AdjustToContents</enum>
-      </property>
-      <property name="dragEnabled">
-       <bool>true</bool>
-      </property>
-      <property name="alternatingRowColors">
-       <bool>true</bool>
-      </property>
-      <property name="verticalScrollMode">
-       <enum>QAbstractItemView::ScrollPerPixel</enum>
-      </property>
-      <property name="horizontalScrollMode">
-       <enum>QAbstractItemView::ScrollPerPixel</enum>
-      </property>
-      <property name="showGrid">
-       <bool>true</bool>
-      </property>
-      <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>64</number>
-      </attribute>
-      <attribute name="verticalHeaderDefaultSectionSize">
-       <number>36</number>
-      </attribute>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="font1Tab">
-     <attribute name="title">
-      <string>Font - By Color</string>
-     </attribute>
-     <widget class="QTableView" name="font1Table">
+     <widget class="QTableView" name="wokegemTable">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -228,17 +189,56 @@
       </attribute>
      </widget>
     </widget>
-    <widget class="QWidget" name="wokegemTab">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+    <widget class="QWidget" name="font2Tab">
      <attribute name="title">
-      <string>Vivid Watcher</string>
+      <string>Font - By Gem</string>
      </attribute>
-     <widget class="QTableView" name="wokegemTable">
+     <widget class="QTableView" name="font2Table">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>1051</width>
+        <height>621</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContents</enum>
+      </property>
+      <property name="dragEnabled">
+       <bool>true</bool>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="verticalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
+      </property>
+      <property name="horizontalScrollMode">
+       <enum>QAbstractItemView::ScrollPerPixel</enum>
+      </property>
+      <property name="showGrid">
+       <bool>true</bool>
+      </property>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>64</number>
+      </attribute>
+      <attribute name="verticalHeaderDefaultSectionSize">
+       <number>36</number>
+      </attribute>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="font1Tab">
+     <attribute name="title">
+      <string>Font - By Color</string>
+     </attribute>
+     <widget class="QTableView" name="font1Table">
       <property name="geometry">
        <rect>
         <x>10</x>
