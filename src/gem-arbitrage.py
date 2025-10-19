@@ -102,6 +102,7 @@ class Controller:
     use_secondary_watcher_data            = is_true(parser.get('market_settings', 'use_secondary_watcher_data'))
     secondary_watcher_data_attempt_count  = int(parser.get('market_settings', 'secondary_watcher_data_attempt_count'))
     awakened_miss_price                   = int(parser.get('market_settings', 'awakened_miss_price'))
+    bypass_calc                           = is_true(parser.get('general', 'bypass_calc'))
 
   except Exception as e:
     print(f"Error loading settings.ini file. Please check the exception below and the corresponding entry in the settings file.\nMost likely, the format for your entry is off. Check the top of settings.ini for more info.\n\n{traceback.format_exc()}")
@@ -693,6 +694,8 @@ class Gem:
 def getOutput():
   Controller.reset()
   out = { 'font1': '', 'font2': '', 'corrupt': '', 'wokegem': '', 'table_font1': [], 'table_font2': [], 'table_corrupts': [], 'table_wokegem': [] }
+  if Controller.bypass_calc:
+    return out
   Controller.fetch(Controller.ninja_json_filename, Controller.API_URL)
   if Controller.pull_currency_prices:
     Controller.fetch(Controller.ninja_json_currency_filename, Controller.CUR_API_URL)
