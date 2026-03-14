@@ -164,7 +164,7 @@ class Controller:
     try:
       if do_fetch:
         if not Controller.DISABLE_OUT: print("Fetching new data from poe.ninja...")
-        response = requests.get(url)
+        response = requests.get(url, headers={'Accept-Encoding': 'identity'})
         if path.exists(filename):
           if not Controller.DISABLE_OUT: print("File already exists, deleting.")
           os.remove(filename)
